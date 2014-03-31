@@ -2,6 +2,7 @@
 
 use Former;
 use Former\Form\Fields\Button;
+use Illuminate\Database\Eloquent\Model;
 use Str;
 use Illuminate\Validation\Validator;
 use Former\FormerServiceProvider;
@@ -11,6 +12,7 @@ use Netfizz\Admin\Traits\ManageConfig;
 use View, Config, RuntimeException;
 
 class FormBuilder {
+
     use ManageConfig;
 
     protected $model;
@@ -95,13 +97,18 @@ class FormBuilder {
     public function setConfigFields()
     {
         // recupère les champs de la config
-        $fields = $this->uniformizeArray($this->getConfig('fields'));
+        $fields = $this->getConfig('fields');
 
         // si vide, on appel les champs du model (sans les exceptions)
         if (empty($fields) && $this->getModel())
         {
             $fields = $this->getModelAttributes();
         }
+
+        $fields = $this->uniformizeArray($fields);
+
+
+        var_dump($fields);
 
         // on parcours les champs pour initialiser les parametres
         foreach($fields as $name => &$params) {
@@ -111,17 +118,200 @@ class FormBuilder {
 
         }
 
+        //die;
+
+
         $this->setConfig($fields, 'fields');
     }
+
 
     protected function setElementType($name, &$params)
     {
         if ( ! isset($params['type']))
         {
-            $params['type'] = $this->getInputType($name);
+            // check if is a relation field
+            if ($relationObj = $this->isRelationshipProperty($name))
+            {
+                //$this->setBelongsToRelashionship($relationName, $name, $params);
+                //$params['type'] = null;
+
+                $this->setRelashionship($name, $relationObj, $params);
+                //var_dump($name, $relationObj);
+
+            } else {
+                $params['type'] = $this->getInputTypeFromTableInfo($name);
+
+            }
+
         }
     }
 
+    protected function isRelationshipProperty($name)
+    {
+        // check if is a foreign key
+        $isForeignKey = strstr($name, '_id', true);
+
+        //var_dump($name, $this->model->getAttribute($name));
+
+        // check if method exist
+        $method = $isForeignKey ?: $name;
+        if ( ! method_exists($this->model, $method)) {
+            return false;
+        }
+
+        // if this method return an eloquent Relationships class
+        $relationObj = $this->model->$method();
+        if (is_subclass_of($relationObj, 'Illuminate\Database\Eloquent\Relations\Relation')) {
+            return $relationObj;
+        }
+
+        return false;
+    }
+
+    protected function setRelashionship($name, $relationObj, &$params)
+    {
+        $relatedModel = $relationObj->getRelated();
+
+        $relationType = class_basename(get_class($relationObj));
+
+        //$params['type'] = 'select';
+        //$params['fromQuery'] = $relatedModel::all();
+
+        //var_dump($relationType);
+
+        switch($relationType) {
+            case 'BelongsTo' :
+                $params['type'] = 'select';
+                $params['fromQuery'] = $relatedModel::all();
+                break;
+
+            case 'BelongsToMany' :
+            case 'MorphMany' :
+                $params['type'] = 'multiselect';
+                $params['fromQuery'] = $relatedModel::all();
+
+                //$params['name'] = $name . '[]';
+                //$params['label'] = $name;
+                //$params['multiple'] = true;
+                break;
+
+        }
+
+        if ($this->model) {
+            //$values = $this->model->getAttribute($name)->lists('id');
+
+            //var_dump($name, $this->model->getAttribute($name));
+        }
+
+        /*
+        if ($relationType === 'BelongsTo') {
+            $params['type'] = 'radios';
+            $choices = $relatedModel::all(array('id', 'name'))->toArray();
+
+            $choices = array(
+                'label' => array('name' => 'foo', 'value' => 'bar', 'data-foo' => 'bar'),
+                'label2' => array('name' => 'foo', 'value' => 'bar2', 'data-foo' => 'bar2'),
+            );
+            $params['inline'] = true;
+
+            //var_dump($choices);
+           // $params['choices'] = $choices;
+            $params['radios'] = $choices;
+        }
+        if ($relationType === 'BelongsToMany') {
+            $params['type'] = 'multiselect';
+
+            //$params['name'] = $name . '[]';
+            //$params['label'] = $name;
+            //$params['multiple'] = true;
+        }
+        */
+
+        /*
+        $params['type'] = 'text';
+        $params['useDatalist'] = $relatedModel::all();
+        */
+
+
+        //$params['label'] = $relationName;
+    }
+
+    /**
+     * Calculate correct Formbuilder method
+     *
+     * @param  string $name
+     * @return string
+     */
+    protected function getInputTypeFromTableInfo($name)
+    {
+
+        //var_dump($name, $this->getTableInfo($name));
+
+        // check if is a model property
+        if ( ! $column = $this->getTableInfo($name))
+        {
+            return null;
+        }
+
+        $dataType = $column->getType()->getName();
+
+        $lookup = array(
+            'string'  => 'text',
+            'float'   => 'text',
+            'date'    => 'text',
+            'text'    => 'textarea',
+            'boolean' => 'checkbox'
+        );
+
+        return array_key_exists($dataType, $lookup)
+            ? $lookup[$dataType]
+            : 'text';
+    }
+
+
+
+    protected function getRelationField($name)
+    {
+        if ($relationName = strstr($name, '_id', true))
+        {
+            /*
+            //$rel = $this->model->load($relationName);
+
+            if (is_string($relationName)) $relationName = (array) $relationName;
+
+            $query = $this->model->newQuery()->with($relationName);
+
+            var_dump($relationName, $query->getModel());
+            */
+
+
+            /*
+            //test = $this->model->getModels();
+            list(, $caller) = debug_backtrace(false);
+
+            $relation = $caller['function'];
+
+            var_dump($relation, $caller);
+            */
+
+            if (method_exists($this->model, $relationName))
+            {
+                $relationClass = $this->model->$relationName();
+
+                $relatedModel = $relationClass->getRelated();
+
+                $test = Former::select('foo')->fromQuery($relatedModel::all());
+                //echo $test;
+
+                //var_dump($relationClass->getRelated());
+            }
+            //$test = $this->model->user();
+
+        }
+
+
+
+    }
 
 
     protected function getModelAttributes()
@@ -222,7 +412,21 @@ class FormBuilder {
 
     public function populate($item)
     {
-        return Former::populate($item);
+        //var_dump( $item->countries->lists('id'));
+        //var_dump($item->getAttribute('countries')->lists('id'));
+        //die;
+
+        //$countries = $item->getAttribute('countries')->lists('id');
+
+        Former::populate($item);
+
+        // todo : check if is a model or an array
+        if ($item instanceof Model) {
+            var_dump('instance of');
+            //Former::populateField('countries', $item->getAttribute('countries')->lists('id'));
+            //Former::populateField('blocks', $item->getAttribute('blocks')->lists('id'));
+        }
+
     }
 
 
@@ -289,74 +493,6 @@ class FormBuilder {
 
 
 
-    protected function getRelationField($name)
-    {
-        if ($relationName = strstr($name, '_id', true))
-        {
-            /*
-            //$rel = $this->model->load($relationName);
-
-            if (is_string($relationName)) $relationName = (array) $relationName;
-
-            $query = $this->model->newQuery()->with($relationName);
-
-            var_dump($relationName, $query->getModel());
-            */
-
-
-            /*
-            //test = $this->model->getModels();
-            list(, $caller) = debug_backtrace(false);
-
-            $relation = $caller['function'];
-
-            var_dump($relation, $caller);
-            */
-
-            if (method_exists($this->model, $relationName))
-            {
-                $relationClass = $this->model->$relationName();
-
-                $relatedModel = $relationClass->getRelated();
-
-                $test = Former::select('foo')->fromQuery($relatedModel::all());
-                //echo $test;
-
-                //var_dump($relationClass->getRelated());
-            }
-            //$test = $this->model->user();
-
-        }
-
-
-
-    }
-
-    /**
-     * Calculate correct Formbuilder method
-     *
-     * @param  string $name
-     * @return string
-     */
-    protected function getInputType($name)
-    {
-        $dataType = $this->getTableInfo($name)
-            ->getType()
-            ->getName();
-
-        $lookup = array(
-            'string'  => 'text',
-            'float'   => 'text',
-            'date'    => 'text',
-            'text'    => 'textarea',
-            'boolean' => 'checkbox'
-        );
-
-        return array_key_exists($dataType, $lookup)
-            ? $lookup[$dataType]
-            : 'text';
-    }
-
     /**
      * Dynamically create form elements
      *
@@ -387,13 +523,12 @@ class FormBuilder {
             throw new RuntimeException('No type defined for ' . $name . ' field.');
         }
 
+        if ($params['type'] === null) {
+            return null;
+        }
+
         $element = Former::$params['type']($name);
-
-        //if (isset($this->config['fields'][$name])) {
-            $this->executeMethods($element, $params);
-        //}
-
-        //var_dump($params);
+        $this->executeMethods($element, $params);
 
         return $element;
     }
