@@ -1,15 +1,17 @@
 <?php namespace Netfizz\FormBuilder;
 
-use Former;
-use Former\Form\Fields\Button;
+//use Former;
+//use Former\Form\Fields\Button;
+//use Former\FormerServiceProvider;
+
 use Illuminate\Database\Eloquent\Model;
-use Str;
 use Illuminate\Validation\Validator;
-use Former\FormerServiceProvider;
 use Netfizz\Admin\Traits\ManageConfig;
+use Netfizz\FormBuilder\Component;
+use Way\Form\FormField;
+use Str, Form, Collection;
+use View, Config;
 
-
-use View, Config, RuntimeException;
 
 class FormBuilder {
 
@@ -21,16 +23,20 @@ class FormBuilder {
 
     protected $method = 'put';
 
-
     protected $tableInfo;
 
     protected $form;
 
     protected $fields;
 
-    protected $formElements;
+    /**
+     * @var Form element
+     */
+    protected $elements;
 
     protected $config;
+
+    const FORMCLASS = 'Way\Form\FormField';
 
 
     public function __construct($config = null, $model = null, $validator = null)
@@ -105,44 +111,47 @@ class FormBuilder {
             $fields = $this->getModelAttributes();
         }
 
+        // prepare fields params
         $fields = $this->uniformizeArray($fields);
 
 
-        var_dump($fields);
+        //var_dump($fields);
 
         // on parcours les champs pour initialiser les parametres
         foreach($fields as $name => &$params) {
             $params = $this->uniformizeArray($params);
 
-            $this->setElementType($name, $params);
-
+            $this->setElement($name, $params);
         }
-
-        //die;
-
 
         $this->setConfig($fields, 'fields');
     }
 
-
-    protected function setElementType($name, &$params)
+    protected function setElement($name, &$params)
     {
         if ( ! isset($params['type']))
         {
-            // check if is a relation field
-            if ($relationObj = $this->isRelationshipProperty($name))
-            {
-                //$this->setBelongsToRelashionship($relationName, $name, $params);
-                //$params['type'] = null;
+            $this->setElementType($name, $params);
+        }
 
-                $this->setRelashionship($name, $relationObj, $params);
-                //var_dump($name, $relationObj);
+        if ( ! isset($params['tabs']))
+        {
+            $params['tabs'] = 'main';
+        }
 
-            } else {
-                $params['type'] = $this->getInputTypeFromTableInfo($name);
 
-            }
 
+        $this->elements[$name] = $params;
+    }
+
+    protected function setElementType($name, &$params)
+    {
+        // check if is a relation field
+        if ($relationObj = $this->isRelationshipProperty($name))
+        {
+            $this->setRelashionship($name, $relationObj, $params);
+        } else {
+            $params['type'] = $this->getInputTypeFromTableInfo($name);
         }
     }
 
@@ -182,13 +191,18 @@ class FormBuilder {
         switch($relationType) {
             case 'BelongsTo' :
                 $params['type'] = 'select';
-                $params['fromQuery'] = $relatedModel::all();
+                $params['choices'] = $this->collectionToArray($relatedModel::all());
+                //$params['fromQuery'] = $relatedModel::all();
                 break;
 
             case 'BelongsToMany' :
             case 'MorphMany' :
-                $params['type'] = 'multiselect';
-                $params['fromQuery'] = $relatedModel::all();
+                //$params['type'] = 'multiselect';
+                $params['type'] = 'select';
+                $params['multiple'] = 'multiple';
+                $params['choices'] = $this->collectionToArray($relatedModel::all());
+
+                //$params['fromQuery'] = $relatedModel::all();
 
                 //$params['name'] = $name . '[]';
                 //$params['label'] = $name;
@@ -236,6 +250,44 @@ class FormBuilder {
         //$params['label'] = $relationName;
     }
 
+    protected function collectionToArray($collection, $value = null, $key = null) {
+        /*
+        //foreach()
+        $options = $collection->each(function($item)
+        {
+           //return array($item->id => (string) $item)
+            //return 'An ode to a fair panda: '.$item->name;
+            $item->ops = $item->__toString();
+        });
+
+        var_dump($options->toArray());
+        die;
+        */
+
+        $options = array();
+
+        foreach($collection as $item) {
+            // Calculate the value
+            if ($value and isset($item->$value)) $modelValue = $item->$value;
+            elseif (method_exists($item, '__toString')) $modelValue = $item->__toString();
+            else $modelValue = null;
+
+            // Calculate the key
+            if ($key and isset($item->$key)) $modelKey = $item->$key;
+            elseif (method_exists($item, 'getKey')) $modelKey = $item->getKey();
+            elseif (isset($item->id)) $modelKey = $item->id;
+            else $modelKey = $modelValue;
+
+            // Skip if no text value found
+            if (!$modelValue) continue;
+
+            $options[$modelKey] = (string) $modelValue;
+        }
+
+        return $options;
+    }
+
+
     /**
      * Calculate correct Formbuilder method
      *
@@ -266,51 +318,6 @@ class FormBuilder {
         return array_key_exists($dataType, $lookup)
             ? $lookup[$dataType]
             : 'text';
-    }
-
-
-
-    protected function getRelationField($name)
-    {
-        if ($relationName = strstr($name, '_id', true))
-        {
-            /*
-            //$rel = $this->model->load($relationName);
-
-            if (is_string($relationName)) $relationName = (array) $relationName;
-
-            $query = $this->model->newQuery()->with($relationName);
-
-            var_dump($relationName, $query->getModel());
-            */
-
-
-            /*
-            //test = $this->model->getModels();
-            list(, $caller) = debug_backtrace(false);
-
-            $relation = $caller['function'];
-
-            var_dump($relation, $caller);
-            */
-
-            if (method_exists($this->model, $relationName))
-            {
-                $relationClass = $this->model->$relationName();
-
-                $relatedModel = $relationClass->getRelated();
-
-                $test = Former::select('foo')->fromQuery($relatedModel::all());
-                //echo $test;
-
-                //var_dump($relationClass->getRelated());
-            }
-            //$test = $this->model->user();
-
-        }
-
-
-
     }
 
 
@@ -418,7 +425,7 @@ class FormBuilder {
 
         //$countries = $item->getAttribute('countries')->lists('id');
 
-        Former::populate($item);
+        //Former::populate($item);
 
         // todo : check if is a model or an array
         if ($item instanceof Model) {
@@ -440,15 +447,16 @@ class FormBuilder {
     protected function getFormOpen()
     {
         // instantiate form
-        $form = Former::open();
+        //$form = Former::open();
 
         // retrieve every params except fields
-        $params = array_except($this->getConfig(), array('fields', 'extras_params'));
+        $params = array_except($this->getConfig('form'), array('fields', 'extras_params'));
+        $form = Form::open($params);
 
         // chain every methods with config params to form
-        $this->executeMethods($form, $params);
+        //$this->executeMethods($form, $params);
 
-        return $form->__toString();
+        return $form;
     }
 
 
@@ -478,16 +486,21 @@ class FormBuilder {
 
     protected function getFormClose()
     {
-        return Former::close();
+        //return Former::close();
+        return Form::close();
     }
 
 
     protected function getFormButtons()
     {
+        return Form::submit('Submit');
+
+        /*
         return  Former::actions()
             ->large_primary_submit('Submit')
             ->large_inverse_reset('Reset')
             ->__toString();
+        */
     }
 
 
@@ -503,32 +516,65 @@ class FormBuilder {
     protected function getFormElements()
     {
         $elements = array();
-        $attributes = $this->getConfig('fields');
+        //$attributes = $this->getConfig('fields');
 
-        foreach($attributes as $name => $params)
+        foreach($this->elements as $name => $params)
         {
-            $elements[$name] = (string) $this->setElement($name);
+            $elements[$name] = (string) $this->makeElement($name);
         }
 
         return $elements;
     }
 
-    protected function setElement($name, $params = null)
+    protected function makeElement($name, $params = null)
     {
         if ($params === null) {
             $params = $this->getConfig('fields.'.$name);
         }
 
-        if ( ! array_key_exists('type', $params)) {
+        if ( ! array_key_exists('type', $params) || $params['type'] == null) {
             throw new RuntimeException('No type defined for ' . $name . ' field.');
         }
 
-        if ($params['type'] === null) {
-            return null;
-        }
+        $type = array_pull($params, 'type');
+        /*
+        $value = array_pull($params, 'value');
+        $choices = array_pull($params, 'choices');
+        $label = array_pull($params, 'label');
+        */
+        // $name, $type = 'text', $value = null, $attributes = array(), $choices
+        //var_dump($name, $type, $value, $params, $choices);
 
-        $element = Former::$params['type']($name);
-        $this->executeMethods($element, $params);
+        $element = new Component($name, $type);
+        $element->setParams($params);
+
+
+        return $element;
+
+        //$element = Former::$params['type']($name);
+        //$element = FormField::$params['type']($name);
+        //$element = FormField::$name($params);
+        //$this->executeMethods($element, $params);
+        if ($params['type'] == 'select')
+        {
+            $arg = array_except($params, array('choices'));
+
+            $name = ! isset($arg['multiple']) ?: $name . '[]';
+
+            $el = Form::select($name, $params['choices'], null, $arg);
+
+            foreach($params['choices'] as $key => $value) {
+                $el .= Form::checkbox($name, $key) .  Form::label($name, $value);
+            }
+
+
+            return $el;
+
+            return Form::select($name, $params['choices'], null, $arg);
+        }
+        $element = FormField::$name($params);
+
+        //$element = $name;
 
         return $element;
     }

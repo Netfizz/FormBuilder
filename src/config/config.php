@@ -1,29 +1,29 @@
 <?php
 
 return array(
-    'method' => 'put',
+    'form' => array(
 
-    'secure' => false,
+        'method' => 'put',
 
-    'foo' => 'bar',
+        'secure' => false,
 
-    'fields' => array(
+        'foo' => 'bar',
 
-
+        'class' => 'myform'
     ),
+
+
+    'fields' => array(),
 
 
     // params not injected to former open object
     'extras_params' => array(
 
+
         'except_fields' => array('id', 'updated_at', 'deleted_at', 'password'),
 
-        'default_fields_params' => array(
-            'textarea' => array(
-                'rows' => 10,
-                'columns' => 20,
-            )
-        )
+
+
     )
 
 );

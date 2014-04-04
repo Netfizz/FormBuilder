@@ -6,4 +6,4 @@
 
     {{ $form->buttons }}
 
-{{ $form->close }}
+{{ $form->close }}form.blade.php
