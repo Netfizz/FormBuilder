@@ -82,9 +82,11 @@ return array(
     /**
      *  Every key params that is not an element
      */
-    'excepts_elements' => array(
+
+    'elements_exceptions' => array(
         'required_class',
         'required_text',
         'template'
     )
+
 );

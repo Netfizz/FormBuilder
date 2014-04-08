@@ -544,9 +544,13 @@ class FormBuilder {
         */
         // $name, $type = 'text', $value = null, $attributes = array(), $choices
         //var_dump($name, $type, $value, $params, $choices);
+        unset($params['tabs']);
 
-        $element = new Component($name, $type);
-        $element->setParams($params);
+        var_dump($name);
+        $element = new Component($name, $type, $params);
+        var_dump(' ------------------------------------ ');
+
+        //$element->setParams($params);
 
 
         return $element;

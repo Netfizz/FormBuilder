@@ -1,4 +1,6 @@
+@if (isset($wrapper))
 <div{{ $wrapper->attributes() }}>
+@endif
 
 @if (isset($prepend))
     <div{{ $prepend->attributes() }}>
@@ -6,7 +8,7 @@
     </div>
 @endif
 
-    {{ $field or ''}}
+    {{ $field or '' }}
 
 @if (isset($append))
     <div{{ $append->attributes() }}>
@@ -14,4 +16,7 @@
     </div>
 @endif
 
+@if (isset($wrapper))
 </div>
+@endif
+<hr />

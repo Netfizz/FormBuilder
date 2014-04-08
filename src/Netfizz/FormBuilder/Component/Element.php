@@ -29,6 +29,10 @@ class Element {
 
     public function render()
     {
+        if ( ! is_array($this->contents) || empty($this->contents) ) {
+            return null;
+        }
+
         return implode(PHP_EOL, $this->contents);
     }
 
