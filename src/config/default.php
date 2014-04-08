@@ -45,6 +45,14 @@ return array(
 
         ),
 
+        'tabs' => array(
+            'template' => 'form-builder::component-tabs',
+        ),
+
+        'fieldset' => array(
+            'template' => 'form-builder::component-fieldset',
+        ),
+
 
         'textarea' => array(
             'template' => 'form-builder::component-multipdsd',
@@ -83,7 +91,7 @@ return array(
      *  Every key params that is not an element
      */
 
-    'elements_exceptions' => array(
+    'params_exceptions' => array(
         'required_class',
         'required_text',
         'template'

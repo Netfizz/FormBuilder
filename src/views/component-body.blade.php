@@ -9,7 +9,11 @@
     BODY
     {{ $field or ''}}
     {{ $field2 or ''}}
-    {{ $field3 or ''}}
+
+<div{{ $field3->attributes() }}>
+{{ $field3 }}
+</div>
+
     {{{ $field4 or  '' }}}
     BODY
 @if (isset($append))

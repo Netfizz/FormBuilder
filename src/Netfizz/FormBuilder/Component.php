@@ -19,6 +19,8 @@ class Component {
 
     protected $value;
 
+    protected $options;
+
     protected $attributes;
 
     protected $choices;
@@ -33,23 +35,19 @@ class Component {
 
     protected $params;
 
-    protected $view;
+    protected $childs;      // childs components
 
-    public function __construct($name, $type = 'text', $params = array()) //, $value = null, $attributes = null, $choices = null)
+    //protected $view;
+
+    public function __construct($name, $type = 'text', $params = array())
     {
 
-        $this->view = App::make('view');
-        //var_dump($this->view);
-        //die;
+        //$this->view = App::make('view');
 
         $this->setConfig(Config::get('form-builder::default', array()))
             ->setName($name)
             ->setType($type)
             ->setParams($params);
-            //->setValue($value)
-            //->setAttributes($attributes)
-            //->setChoices($choices);
-            //->makeDefaultElements();
     }
 
 
@@ -79,16 +77,24 @@ class Component {
 
 
 
-    public function setParams(array $params)
+    public function setParams(array $params, $clear = false)
     {
         // set default params for this component type if is not set OR if type change
-        if ( is_null($this->params) || ( isset($params['type']) && $params['type'] != $this->type ))
+        if ($clear || is_null($this->params) || ( isset($params['type']) && $params['type'] != $this->type ))
         {
             $this->setDefaultParams();
         }
 
         // merge params with default params
         $this->params = array_merge($this->params, $params);
+
+        //$fieldAttributes = $this->params;
+        foreach(array_keys($this->params) as $name)
+        {
+            $this->callParamMethod($name);
+        }
+
+        //var_dump('setParam', $fieldParams);
 
         // todo : a supprimer,
         //$template = $this->getTemplate();
@@ -97,38 +103,49 @@ class Component {
         return $this;
     }
 
-    protected function setParam($param, array &$params)
+    protected function setOptions($options = null)
     {
-        if (array_key_exists($param, $params))
-        {
-            $method = 'set' . ucfirst($param);
-            $this->$method($params[$param]);
-            unset($params[$param]);
-        }
-    }
+        if ( ! $this->options && is_null($options) ) {
+            $this->options = $this->params;
 
-    /*
-    protected function makeDefaultElements()
-    {
-        $exceptions = array_get($this->config, 'excepts_elements', array());
-        $elements = array_except($this->getAttributes(), $exceptions);
-
-        //var_dump($elements);
-        //return true;
-        //die;
-
-        foreach($elements as $name => $attributes){
-            $method = 'Set'.ucfirst($name);
-            if (method_exists($this, $method))
+            foreach (array_keys($this->options) as $option)
             {
-                $this->$method($attributes);
-            } else {
-                $this->makeElement($name, $attributes);
+                if (method_exists($this, 'set' . ucfirst($option)))
+                {
+                    unset($this->options[$option]);
+                }
             }
         }
 
+        //$this->options = array_except($this->options, )
+        //$this->
     }
-    */
+
+    protected function getFieldOptions()
+    {
+        /*
+        $template = $this->getTemplate();
+
+        $exception = $this->getElementNamesFromTemplate($template);
+        $option = array_except($this->params, $exception);
+
+        var_dump($notAttributesParams);
+        */
+
+        return $this->params['fields'];
+    }
+
+
+    protected function callParamMethod($name)
+    {
+        if (array_key_exists($name, $this->params) && method_exists($this, 'set' . ucfirst($name)))
+        {
+            $method = 'set' . ucfirst($name);
+            $this->$method($this->params[$name]);
+            //unset($params[$name]);
+        }
+    }
+
 
     public function getElements($template)
     {
@@ -145,14 +162,109 @@ class Component {
 
     protected function makeElements($elementNames)
     {
-        foreach ($elementNames as $name)
+
+        foreach (array_except($elementNames, 'field') as $name)
         {
             $attributes = array_key_exists($name, $this->params) ? $this->params[$name] : array();
-            $this->makeElement($name, $attributes);
 
-            //var_dump($name, $attributes);
+            $this->makeElement($name, $attributes);
         }
+
+
+        $this->makeFieldElement();
     }
+
+    protected function makeFieldElement()
+    {
+        // input($type, $name, $value = null, $options = array())
+        // textarea($name, $value = null, $options = array())
+        // select($name, $list = array(), $selected = null, $options = array())
+        // checkable($type, $name, $value, $checked, $options)
+        // button($value = null, $options = array())
+        // macro
+
+        // input        $type, $name, $value,           $options
+        // textarea            $name, $value,           $options
+        // select              $name, $list, $selected, $options
+        // checkable    $type, $name, $value, $checked, $options
+        // button                     $value,           $options
+        // macro
+
+        $type = $this->type;
+        $name = $this->getName();
+        $value = null;
+        //$options = $this->getFieldOptions();
+        $options = array();
+        //$value = null;
+        $list = $this->getChoices();
+
+
+        //$content[] = Form::text($this->getName(), null);
+
+        switch ($type) {
+            case 'select' :
+                $content[] = $this->makeLabel();
+                $content[] = Form::select($name, $list, $value, $options);
+                break;
+
+            case 'textarea' :
+                $content[] = $this->makeLabel();
+                $content[] = Form::textarea($name, $value, $options);
+                break;
+
+            case 'text' :
+            case 'password' :
+            case 'hidden' :
+            case 'email' :
+            case 'url' :
+            case 'file' :
+            case 'reset' :
+            case 'image' :
+            case 'submit' :
+                $content[] = $this->makeLabel();
+                $content[] = Form::input($type, $name, $value, $options);
+                break;
+        }
+
+        $this->makeElement('field', array('content' => $content));
+    }
+
+    protected function makeLabel()
+    {
+        return Form::label($this->getName(), $this->getLabel());
+    }
+
+    public function makeElement($name, $attributes)
+    {
+        $content = null;
+        if ( ! is_array($attributes) )
+        {
+            $content = $attributes;
+        }
+        else if ( array_key_exists('content', $attributes))
+        {
+            $content = $attributes['content'];
+        } else {
+            $content = $name;
+        }
+
+        $this->elements[$name] = new Element($content, $attributes);
+    }
+
+
+    public function getElement($name)
+    {
+        return array_key_exists($name, $this->elements) ?
+            $this->elements[$name] : null;
+    }
+
+
+    public function setElement($name, Element $element)
+    {
+        $this->elements[$name] = $element;
+    }
+
+
 
     /**
      * Get not compiled component template content
@@ -163,10 +275,10 @@ class Component {
     protected function getTemplateContent($template = null)
     {
         if ( is_null($template) ) {
-            $template = self::getTemplate();
+            $template = $this->getTemplate();
         }
 
-        $finder = $this->view->getFinder();
+        $finder = View::getFinder();
         $filesystem = $finder->getFilesystem();
 
         return $filesystem->get($finder->find($template));
@@ -197,25 +309,6 @@ class Component {
 
 
 
-    public function makeElement($name, $attributes)
-    {
-        $this->elements[$name] = new Element($name, $attributes);
-    }
-
-
-    public function getElement($name)
-    {
-        return array_key_exists($name, $this->elements) ?
-            $this->elements[$name] : null;
-    }
-
-
-    public function setElement($name, Element $element)
-    {
-        $this->elements[$name] = $element;
-    }
-
-
 
 
 
@@ -223,6 +316,11 @@ class Component {
     {
         $this->name = $name;
         return $this;
+    }
+
+    public function getName()
+    {
+        return $this->name;
     }
 
 
@@ -242,13 +340,40 @@ class Component {
 
     public function setLabel($label)
     {
-        $this->label = $label;
+
+        //if ($this->params['label'])
+
+        //var_dump('$label', $label);
+
+
+        if ( is_array($label) )
+        {
+            $this->params['label'] = array_merge($this->params['label'], $label);
+        }
+        else if ( is_string($label))
+        {
+            $this->params['label']['content'] = $label;
+        }
+
+        if ( ! array_key_exists('content', $this->params['label'])) {
+            $this->params['label']['content'] = ucfirst($this->getName());
+        }
+
+        // todo : add required
+
+        //$this->label = $label;
         return $this;
     }
 
 
+    public function getLabel()
+    {
+        return $this->params['label']['content'];
+    }
 
 
+
+    /*
     public function getAttributes() {
 
         if ($this->attributes === null) {
@@ -268,7 +393,7 @@ class Component {
 
         return $this;
     }
-
+    */
 
 
     public function setChoices($choices)
@@ -277,6 +402,10 @@ class Component {
         return $this;
     }
 
+    public function getChoices()
+    {
+        return $this->choices;
+    }
 
     public function setTemplate($template)
     {
@@ -291,7 +420,7 @@ class Component {
             $this->template = array_get($this->params, 'template', 'form-builder::component');
         }
 
-        if ( ! $this->view->exists($this->template) )
+        if ( ! View::exists($this->template) )
         {
             throw new RuntimeException('Template' . $this->template . ' doesn\'t exist.');
         }
@@ -316,7 +445,7 @@ class Component {
 
         //var_dump($elements);
         //return ' component <br />';
-        return $this->view->make($template, $elements);
+        return View::make($template, $elements);
     }
 
 
