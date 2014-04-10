@@ -31,7 +31,7 @@ return array(
 
 
             'field' => array(
-                'class' => 'test1',
+                'class' => 'form-control',
                 'att' => array('a', 'b')
             ),
 
@@ -58,7 +58,7 @@ return array(
             'template' => 'form-builder::component-multipdsd',
 
             'field' => array(
-                'class' => 'test2',
+                'class' => 'form-control test2',
                 'att' => array('c', 'd'),
                 'rows' => 10,
                 'columns' => 20,

@@ -6,7 +6,6 @@
         {{ $prepend }}
     </div>
 @endif
-    BODY
     {{ $field or ''}}
     {{ $field2 or ''}}
 

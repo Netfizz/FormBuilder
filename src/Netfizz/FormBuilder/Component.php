@@ -132,7 +132,18 @@ class Component {
         var_dump($notAttributesParams);
         */
 
-        return $this->params['fields'];
+        if ( array_key_exists('field', $this->params) )
+        {
+            foreach($this->params['field'] as &$value) {
+                if (is_array($value)) {
+                    $value = implode(' ', $value);
+                }
+            }
+
+            return $this->params['field'];
+        }
+
+        return array();
     }
 
 
@@ -193,12 +204,12 @@ class Component {
         $type = $this->type;
         $name = $this->getName();
         $value = null;
-        //$options = $this->getFieldOptions();
-        $options = array();
+        $options = $this->getFieldOptions();
+        //$options = array();
         //$value = null;
         $list = $this->getChoices();
 
-
+        var_dump($this->getFieldOptions());
         //$content[] = Form::text($this->getName(), null);
 
         switch ($type) {
@@ -245,7 +256,7 @@ class Component {
         {
             $content = $attributes['content'];
         } else {
-            $content = $name;
+            $content = null;
         }
 
         $this->elements[$name] = new Element($content, $attributes);
@@ -443,8 +454,8 @@ class Component {
 
         $elements = $this->getElements($template);
 
-        //var_dump($elements);
-        //return ' component <br />';
+        var_dump($elements);
+        return ' component <br />';
         return View::make($template, $elements);
     }
 
