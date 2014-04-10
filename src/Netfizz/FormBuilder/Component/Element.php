@@ -23,6 +23,7 @@ class Element {
     public function __construct($contents = null, $attributes = array())
     {
         $this->setContents($contents);
+
         $this->setAttributes($attributes);
     }
 
