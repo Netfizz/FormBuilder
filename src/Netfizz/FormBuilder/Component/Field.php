@@ -30,12 +30,18 @@ class Field extends Container {
         parent::__construct($type, $name, $value, $options);
     }
 
+    public function getValidator() {
+        return parent::getValidator();
+    }
+
+
 
     protected function makeContent()
     {
         $type = $this->type;
         $name = $this->name;
-        $value = null;
+        //$value = null;
+        $value = $this->value;
 
 
         $options = $this->getOptions();
@@ -68,6 +74,11 @@ class Field extends Container {
             case 'submit' :
                 $content = FormBuilder::input($type, $name, $value, $options);
                 break;
+
+            case 'button':
+                $content = FormBuilder::button($name, $options);
+                break;
+
         }
 
 

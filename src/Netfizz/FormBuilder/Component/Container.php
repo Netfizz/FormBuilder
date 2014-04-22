@@ -3,7 +3,7 @@
 use Illuminate\Support\Contracts\RenderableInterface as Renderable;
 use Netfizz\FormBuilder\Component\Field;
 use Netfizz\FormBuilder\Component\Form;
-use View, Config, HTML, RuntimeException;
+use View, Config, HTML, App, Session, RuntimeException;
 
 class Container implements Renderable {
 
@@ -23,6 +23,13 @@ class Container implements Renderable {
 
     protected $attributes;
 
+    protected $error;
+
+    //protected $submit;
+
+    //protected $validator;
+
+
 
     public function __construct($type = 'container', $name, $content = null, $params = array())
     {
@@ -30,9 +37,21 @@ class Container implements Renderable {
         $this->type = $type;
         $this->name = $name;
         $this->content = $content;
+        $this->error = Session::get('errors');
         $this->config = $this->makeConfig($params);
     }
 
+    /*
+    public function validator($validator)
+    {
+        $this->validator = $validator;
+        return $this;
+    }
+
+    public function getValidator() {
+        return $this->validator;
+    }
+    */
     protected function makeConfig($params)
     {
 
@@ -83,6 +102,11 @@ class Container implements Renderable {
         return new Field('text', $name, $content, $params);
     }
 
+    public static function email($name, $content = null, $params = array())
+    {
+        return new Field('email', $name, $content, $params);
+    }
+
     public static function textarea($name, $content = null, $params = array())
     {
         return new Field('textarea', $name, $content, $params);
@@ -94,10 +118,20 @@ class Container implements Renderable {
     }
 
 
+    public static function submit($name, $content = null, $params = array())
+    {
+        return new Field('submit', $name, $content, $params);
+    }
+
+    public static function button($name, $content = null, $params = array())
+    {
+        return new Field('button', $name, $content, $params);
+    }
 
 
-
-
+    /**
+     * @return $this
+     */
     public function add()
     {
         $elements = array();
@@ -121,6 +155,11 @@ class Container implements Renderable {
         return $this;
     }
 
+
+    /**
+     * @param $template
+     * @return $this
+     */
     public function setTemplate($template)
     {
         $this->template = $template;
@@ -128,6 +167,9 @@ class Container implements Renderable {
     }
 
 
+    /**
+     * @return mixed
+     */
     public function getTemplate()
     {
         return $this->template ?: array_get($this->config, 'template', 'form-builder::container');
@@ -163,11 +205,11 @@ class Container implements Renderable {
     }
 
 
-
     protected function makeContent()
     {
         return $this->content;
     }
+
 
     protected function makeLabel() {
         return ucfirst($this->getName());
@@ -209,11 +251,55 @@ class Container implements Renderable {
         return $this->elements;
     }
 
+    public function makeMessage()
+    {
+
+        if ($error = $this->getError()) {
+
+            $class = array_get($this->config, 'class.error');
+            $this->addClass($class);
+
+            return $error;
+        }
+
+
+
+        return null;
+    }
+
+    public function getError()
+    {
+        if ($this->error && $this->error->has($this->name))
+        {
+            $format = array_get($this->config, 'messageBagFormat');
+            return $this->error->first($this->name, $format);
+        }
+
+        return null;
+    }
+
+    public function addClass($class, $element = 'container')
+    {
+        if ($element == 'container')
+        {
+            $currentClass = array_get($this->config, 'attributes.class');
+
+            if (! is_array($currentClass)) {
+                $currentClass = array($currentClass);
+            }
+
+            $currentClass[] = $class;
+
+            array_set($this->config, 'attributes.class', $currentClass);
+        }
+    }
+
 
 
     protected function getDatas()
     {
         return array(
+            'message' => $this->makeMessage(),
             'label' => $this->makeLabel(),
             'content' => $this->makeContent(),
             'attributes' => $this->makeAttributes(),
@@ -224,7 +310,6 @@ class Container implements Renderable {
 
     public function render()
     {
-        //var_dump($this->getTemplate(), $this->getDatas());
         return View::make(
             $this->getTemplate(),
             $this->getDatas()

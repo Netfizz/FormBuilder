@@ -16,6 +16,9 @@ class Form extends Container {
     protected $model;
 
 
+
+
+
     public function __construct($name, $content, $options = array())
     {
         $this->options = $options;
@@ -24,10 +27,13 @@ class Form extends Container {
 
     public function bind($model) {
         $this->model = $model;
+
+        return $this;
     }
 
 
-    protected function makeOpenFormTag()
+
+    protected function makeFormOpenTag()
     {
         $form = $this->model ?
             FormBuilder::model($this->model, $this->getOptions()) :
@@ -36,16 +42,30 @@ class Form extends Container {
         return $form;
     }
 
-    protected function makeCloseFormTag() {
-        return FormBuilder::close();
+    protected function makeFormCloseTag() {
+        return '</form>';
     }
 
 
     protected function getDatas() {
         return array_merge(parent::getDatas(), array(
-            'openFormTag' => $this->makeOpenFormTag(),
-            //'closeFormTag' => $this->makeCloseFormTag()
+            'formOpenTag' => $this->makeFormOpenTag(),
+            'formCloseTag' => $this->makeFormCloseTag()
         ));
     }
+
+    public function render()
+    {
+        FormBuilder::close();
+        return parent::render();
+    }
+
+
+    /*
+    public function __toString()
+    {
+        return (string) $this->render().'FORFFFFFFF';
+    }
+    */
 
 } 

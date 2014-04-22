@@ -429,7 +429,7 @@ class FormBuilder {
 
         // todo : check if is a model or an array
         if ($item instanceof Model) {
-            var_dump('instance of');
+            //var_dump('instance of');
             //Former::populateField('countries', $item->getAttribute('countries')->lists('id'));
             //Former::populateField('blocks', $item->getAttribute('blocks')->lists('id'));
         }
@@ -546,9 +546,9 @@ class FormBuilder {
         //var_dump($name, $type, $value, $params, $choices);
         unset($params['tabs']);
 
-        var_dump($name);
+        //var_dump($name);
         $element = new Component($name, $type, $params);
-        var_dump(' ------------------------------------ ');
+        //var_dump(' ------------------------------------ ');
 
         //$element->setParams($params);
 

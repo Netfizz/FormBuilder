@@ -209,7 +209,7 @@ class Component {
         //$value = null;
         $list = $this->getChoices();
 
-        var_dump($this->getFieldOptions());
+        //var_dump($this->getFieldOptions());
         //$content[] = Form::text($this->getName(), null);
 
         switch ($type) {
@@ -454,7 +454,7 @@ class Component {
 
         $elements = $this->getElements($template);
 
-        var_dump($elements);
+        //var_dump($elements);
         return ' component <br />';
         return View::make($template, $elements);
     }

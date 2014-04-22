@@ -29,6 +29,13 @@ class FormBuilderServiceProvider extends ServiceProvider {
 	public function register()
 	{
 		//
+        /*
+        $app = $this->app;
+
+        $app['myForm'] = function() {
+            return 'fdsfdsfd';
+        };
+        */
 	}
 
 	/**

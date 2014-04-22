@@ -1,6 +1,5 @@
 <div style="border: 1px solid #ccc; padding: 20px; margin: 20px;">
-
-    {{ $openFormTag or '' }}
+    {{ $formOpenTag or '' }}
 
     {{ $content or '' }}
 
@@ -8,6 +7,5 @@
         {{ $element }}
     @endforeach
 
-    {{ $closeFormTag or '' }}
-    FormBuilder::close()
+    {{ $formCloseTag or '' }}
 </div>
