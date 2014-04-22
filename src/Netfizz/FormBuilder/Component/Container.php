@@ -3,6 +3,7 @@
 use Illuminate\Support\Contracts\RenderableInterface as Renderable;
 use Netfizz\FormBuilder\Component\Field;
 use Netfizz\FormBuilder\Component\Form;
+use Illuminate\Support\MessageBag;
 use View, Config, HTML, App, Session, RuntimeException;
 
 class Container implements Renderable {
@@ -23,7 +24,10 @@ class Container implements Renderable {
 
     protected $attributes;
 
-    protected $error;
+    protected $messages;
+    //protected $errors;
+
+    //protected $warnings;
 
     //protected $submit;
 
@@ -33,25 +37,19 @@ class Container implements Renderable {
 
     public function __construct($type = 'container', $name, $content = null, $params = array())
     {
-
         $this->type = $type;
         $this->name = $name;
         $this->content = $content;
-        $this->error = Session::get('errors');
+        //$this->errors = Session::get('errors');
+        //$this->warnings = Session::get('warnings');
         $this->config = $this->makeConfig($params);
+
+        $this->makeMessagesBags();
+        //$this->warnings = $this->makeMessageBag('warnings');
+
     }
 
-    /*
-    public function validator($validator)
-    {
-        $this->validator = $validator;
-        return $this;
-    }
 
-    public function getValidator() {
-        return $this->validator;
-    }
-    */
     protected function makeConfig($params)
     {
 
@@ -65,6 +63,48 @@ class Container implements Renderable {
 
         return array_merge($commonConfig, $defaultTypeConfig, $params);
     }
+
+
+
+    protected function makeMessagesBags()
+    {
+        $states = array_get($this->config, 'message.states', array());
+        $format = array_get($this->config, 'message.format', null);
+
+        foreach ($states as $state => $value)
+        {
+            if (! $message = Session::get($state))
+            {
+                $message = new MessageBag;
+            }
+
+            $message->setFormat($format);
+
+            $this->messages[$state] = $message;
+        }
+    }
+
+    public function makeMessage()
+    {
+
+        $states = array_get($this->config, 'message.states', array());
+        $showMethod = array_get($this->config, 'message.show', 'first');
+
+        foreach($states as $state => $class)
+        {
+            if ($this->messages[$state]->has($this->name)) {
+
+                $this->addClass($class);
+
+                $message = $this->messages[$state]->$showMethod($this->name);
+
+                return is_array($message) ? implode(PHP_EOL, $message) : $message;
+            }
+        }
+
+        return null;
+    }
+
 
     protected function getOptions()
     {
@@ -251,32 +291,8 @@ class Container implements Renderable {
         return $this->elements;
     }
 
-    public function makeMessage()
-    {
-
-        if ($error = $this->getError()) {
-
-            $class = array_get($this->config, 'class.error');
-            $this->addClass($class);
-
-            return $error;
-        }
 
 
-
-        return null;
-    }
-
-    public function getError()
-    {
-        if ($this->error && $this->error->has($this->name))
-        {
-            $format = array_get($this->config, 'messageBagFormat');
-            return $this->error->first($this->name, $format);
-        }
-
-        return null;
-    }
 
     public function addClass($class, $element = 'container')
     {

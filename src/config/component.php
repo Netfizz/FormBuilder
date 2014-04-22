@@ -8,16 +8,28 @@ return array(
         'template' => 'form-builder::component.field',
 
         // The class to be added to required fields
-        //'requiredClass'    => 'required',
+        'requiredClass'    => 'required',
+
+        /*
         'class' => array(
             'required'  => 'required',
-            'error'     => 'has-error',
-            'success'   => 'has-success',
-            'warning'   => 'has-warning'
+
         ),
+        */
 
         // messageBag Formating when there are error
-        'messageBagFormat' => '<p>:message</p>',
+        //'messageBagFormat' => '<p>:message</p>',
+
+        // messageBag
+        'message' => array(
+            'format' => '<p>:message</p>',
+            'show' => 'first', // or 'get' all
+            'states' => array(
+                'errors'     => 'has-error',
+                'warnings'   => 'has-warning',
+                'success'   => 'has-success'
+            )
+        ),
 
 
         // A facultative text to append to the labels of required fields

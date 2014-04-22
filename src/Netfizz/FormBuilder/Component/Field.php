@@ -88,7 +88,12 @@ class Field extends Container {
 
     protected function makeLabel()
     {
-        return FormBuilder::label($this->name, $this->name);
+        //var_dump(array_get($this->config, 'label'));
+
+        $label = null;
+        $options = array_get($this->config, 'label');
+
+        return FormBuilder::label($this->name, $label, $options);
     }
 
 
