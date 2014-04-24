@@ -1,8 +1,9 @@
 <?php namespace Netfizz\FormBuilder\Component;
 
 use Illuminate\Support\Contracts\RenderableInterface as Renderable;
-use Netfizz\FormBuilder\Component\Field;
 use Netfizz\FormBuilder\Component\Form;
+use Netfizz\FormBuilder\Component\Field;
+use Netfizz\FormBuilder\Component\Choices;
 use Illuminate\Support\MessageBag;
 use View, Config, HTML, App, Session, RuntimeException;
 
@@ -25,6 +26,10 @@ class Container implements Renderable {
     protected $attributes;
 
     protected $messages;
+
+    //protected $model;
+
+    //protected $parent;
     //protected $errors;
 
     //protected $warnings;
@@ -40,20 +45,52 @@ class Container implements Renderable {
         $this->type = $type;
         $this->name = $name;
         $this->content = $content;
-        //$this->errors = Session::get('errors');
-        //$this->warnings = Session::get('warnings');
-        $this->config = $this->makeConfig($params);
+        $this->params = $params;
 
-        $this->makeMessagesBags();
-        //$this->warnings = $this->makeMessageBag('warnings');
+        $this->setConfig();
+        $this->setMessagesBags();
+    }
 
+    public function getFormService()
+    {
+        return App::make('formizz');
+    }
+
+    public function getModel()
+    {
+        return $formService = $this->getFormService()->getModel();
+    }
+
+    /*
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
+    }
+
+    public function getParent()
+    {
+        //return parent::getInstance();
+        return $this->parent;
     }
 
 
-    protected function makeConfig($params)
+    public function getInstance()
     {
+        return $this;
+    }
+    */
 
-        if ( ! is_array($params)) {
+    /*
+    public function setModel($model)
+    {
+        $this->model = $model;
+    }
+    */
+
+
+    protected function setConfig()
+    {
+        if ( ! is_array($this->params)) {
             throw new RuntimeException( ucfirst($this->name) . ' params is not an array.');
         }
 
@@ -61,12 +98,12 @@ class Container implements Renderable {
 
         $defaultTypeConfig = Config::get('form-builder::component.'.$this->type, array());
 
-        return array_merge($commonConfig, $defaultTypeConfig, $params);
+        $this->config = array_merge($commonConfig, $defaultTypeConfig, $this->params);
     }
 
 
 
-    protected function makeMessagesBags()
+    protected function setMessagesBags()
     {
         $states = array_get($this->config, 'message.states', array());
         $format = array_get($this->config, 'message.format', null);
@@ -110,7 +147,19 @@ class Container implements Renderable {
     {
         $options = array_get($this->config, 'options', array());
 
-        return array_merge($options, $this->options);
+        return array_merge($options, $this->params);
+    }
+
+    protected function getFlattenOptions()
+    {
+        $options = $this->getOptions();
+        foreach($options as &$option) {
+            if (is_array($option)) {
+                $option = implode(' ', $option);
+            }
+        }
+
+        return $options;
     }
 
     public function get($selector)
@@ -152,9 +201,10 @@ class Container implements Renderable {
         return new Field('textarea', $name, $content, $params);
     }
 
-    public static function select($name, $content = null, $params = array())
+    public static function select($name, $choices = array(), $content = null, $params = array())
     {
-        return new Field('select', $name, $content, $params);
+        //return new Field('select', $name, $content, $params);
+        return new Choices('select', $name, $choices, $content, $params);
     }
 
 
@@ -178,10 +228,11 @@ class Container implements Renderable {
 
         foreach(func_get_args() as $element)
         {
-
+            // Todo : remplacer Renderable par une interface pour les champs
             if ($element instanceof Renderable)
             {
                 $name = $element->getName() ?: null;
+                //$element->setParent($this);
                 $elements[$name] = $element;
             }
             elseif (is_string($element))

@@ -24,7 +24,7 @@ return array(
 
         // messageBag
         'message' => array(
-            'format' => '<p class="alert">:message</p>',
+            'format' => '<p class="alert alert-danger">:message</p>',
             'show' => 'first', // or 'get' all
             'states' => array(
                 'errors'     => 'has-error',

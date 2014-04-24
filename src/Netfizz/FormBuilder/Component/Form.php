@@ -25,12 +25,21 @@ class Form extends Container {
         parent::__construct('form', $name, $content, $options);
     }
 
-    public function bind($model) {
+    public function bind($model)
+    {
         $this->model = $model;
+
+        $this->getFormService()->setModel($model);
 
         return $this;
     }
 
+    /*
+    public function getModel()
+    {
+        return $this->model;
+    }
+    */
 
 
     protected function makeFormOpenTag()

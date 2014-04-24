@@ -1,16 +1,10 @@
 <?php namespace Netfizz\FormBuilder;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Html\HtmlServiceProvider;
+use Netfizz\FormBuilder\FormBuilder;
 
-class FormBuilderServiceProvider extends ServiceProvider {
 
-	/**
-	 * Indicates if loading of the provider is deferred.
-	 *
-	 * @var bool
-	 */
-	protected $defer = false;
-
+class FormBuilderServiceProvider_old extends HtmlServiceProvider {
     /**
      * Bootstrap the application events.
      *
@@ -21,13 +15,14 @@ class FormBuilderServiceProvider extends ServiceProvider {
         $this->package('netfizz/form-builder');
     }
 
-	/**
-	 * Register the service provider.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
+
+    /**
+     * Register the form builder instance.
+     *
+     * @return void
+     */
+    protected function registerFormBuilder()
+    {
         $this->app->bindShared('formizz', function($app)
         {
             $form = new FormBuilder($app['html'], $app['url'], $app['session.store']->getToken());
@@ -35,15 +30,5 @@ class FormBuilderServiceProvider extends ServiceProvider {
             return $form->setSessionStore($app['session.store']);
         });
     }
-
-    /**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides()
-	{
-		return array('formizz');
-	}
 
 }
