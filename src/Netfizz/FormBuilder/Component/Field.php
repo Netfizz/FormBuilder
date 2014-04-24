@@ -3,7 +3,7 @@
 //use Netfizz\FormBuilder\Component\Container;
 use Illuminate\Support\Facades\Form as FormBuilder;
 //use Illuminate\Html\FormBuilder;
-
+use HTML;
 
 class Field extends Container {
 
@@ -88,12 +88,19 @@ class Field extends Container {
 
     protected function makeLabel()
     {
-        //var_dump(array_get($this->config, 'label'));
+        $label = parent::makeLabel();
+        if ($label === null) {
+            return null;
+        }
 
-        $label = null;
+        if ($this->isRequired()) {
+            $label .= array_get($this->config, 'require.text');
+        }
+
         $options = array_get($this->config, 'label');
+        unset($options['label']);
 
-        return FormBuilder::label($this->name, $label, $options);
+        return HTML::decode(FormBuilder::label($this->name, $label, $options));
     }
 
 

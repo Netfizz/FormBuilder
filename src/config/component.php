@@ -8,8 +8,10 @@ return array(
         'template' => 'form-builder::component.field',
 
         // The class to be added to required fields
-        'requiredClass'    => 'required',
-
+        'require' => array(
+            'text' => ' <sup>*</sup>',
+            'class' => 'required',
+        ),
         /*
         'class' => array(
             'required'  => 'required',
@@ -22,7 +24,7 @@ return array(
 
         // messageBag
         'message' => array(
-            'format' => '<p>:message</p>',
+            'format' => '<p class="alert">:message</p>',
             'show' => 'first', // or 'get' all
             'states' => array(
                 'errors'     => 'has-error',
@@ -31,9 +33,6 @@ return array(
             )
         ),
 
-
-        // A facultative text to append to the labels of required fields
-        'requiredText'     => '<sup>*</sup>',
 
         // Input options
         'options' => array(
@@ -76,6 +75,12 @@ return array(
 
 
     'textarea' => array(
+        /*
+        'label' => array(
+            'label' => 'Test BLA BLA',
+            'class' => 'control-label'
+        ),
+        */
         'options' => array(
             'class' => 'form-control test2',
             'att' => array('c', 'd'),

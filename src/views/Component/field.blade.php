@@ -1,6 +1,6 @@
 <div{{ $attributes }} style="border: 1px solid #ccc; padding: 20px; margin: 20px;">
 
-    {{ $message or '' }}
+    {{ $message }}
     {{ $label }}
     {{ $content }}
 

@@ -252,7 +252,26 @@ class Container implements Renderable {
 
 
     protected function makeLabel() {
-        return ucfirst($this->getName());
+
+        $label = array_get($this->config, 'label');
+
+        if (is_array($label)) {
+            return array_get($label, 'label', ucwords(str_replace('_', ' ', $this->getName())));
+        }
+
+        return null;
+    }
+
+    protected function isRequired()
+    {
+
+        if (array_get($this->config, 'required')) {
+            $class = array_get($this->config, 'require.class');
+            $this->addClass($class);
+            return true;
+        }
+
+        return false;
     }
 
 
