@@ -13,6 +13,8 @@ class Container implements Renderable {
 
     protected $type;
 
+    protected $id;
+
     protected $name;
 
     protected $content;
@@ -203,10 +205,34 @@ class Container implements Renderable {
 
     public static function select($name, $choices = array(), $content = null, $params = array())
     {
-        //return new Field('select', $name, $content, $params);
         return new Choices('select', $name, $choices, $content, $params);
     }
 
+    public static function multiselect($name, $choices = array(), $content = null, $params = array())
+    {
+        $params = array_merge($params, array('multiple' => 'multiple'));
+        return new Choices('select', $name, $choices, $content, $params);
+    }
+
+    public static function radio($name, $choices = array(), $content = null, $params = array())
+    {
+        return new Choices('radio', $name, $choices, $content, $params);
+    }
+
+    public static function radios($name, $choices = array(), $content = null, $params = array())
+    {
+        return new Choices('radios', $name, $choices, $content, $params);
+    }
+
+    public static function checkbox($name, $choices = array(), $content = null, $params = array())
+    {
+        return new Choices('checkbox', $name, $choices, $content, $params);
+    }
+
+    public static function checkboxes($name, $choices = array(), $content = null, $params = array())
+    {
+        return new Choices('checkboxes', $name, $choices, $content, $params);
+    }
 
     public static function submit($name, $content = null, $params = array())
     {
@@ -226,18 +252,17 @@ class Container implements Renderable {
     {
         $elements = array();
 
-        foreach(func_get_args() as $element)
+        foreach(func_get_args() as $delta => $element)
         {
             // Todo : remplacer Renderable par une interface pour les champs
             if ($element instanceof Renderable)
             {
-                $name = $element->getName() ?: null;
-                //$element->setParent($this);
-                $elements[$name] = $element;
+                $id = $element->getId() ?: $delta;
+                $elements[$id] = $element;
             }
             elseif (is_string($element))
             {
-                $elements[$element] = Container::create($element, $element);
+                $elements[$delta] = Container::create($delta, $element);
             }
         }
 
@@ -281,6 +306,24 @@ class Container implements Renderable {
         return $this->name;
     }
 
+    public function getId()
+    {
+        return $this->id ?: $this->makeId();
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    protected function makeId()
+    {
+        $id = $this->name;
+        $this->setId($id);
+
+        return $id;
+    }
+
 
 
 
@@ -307,7 +350,11 @@ class Container implements Renderable {
         $label = array_get($this->config, 'label');
 
         if (is_array($label)) {
-            return array_get($label, 'label', ucwords(str_replace('_', ' ', $this->getName())));
+            return array_get($label, 'label', ucwords(str_replace(array('_', '[]'), array(' ', ''), $this->getName())));
+        }
+
+        if (is_string($label)) {
+            return $label;
         }
 
         return null;
@@ -396,6 +443,11 @@ class Container implements Renderable {
 
     public function render()
     {
+
+        if ($this->type == 'container') {
+            return $this->content;
+        }
+
         return View::make(
             $this->getTemplate(),
             $this->getDatas()

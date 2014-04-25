@@ -97,6 +97,33 @@ return array(
         ),
     ),
 
+    'radio' => array(
+        //'template' => 'form-builder::component.checkable',
+        'attributes' => array(
+            'class' => 'radio'
+        ),
+        'options' => array(
+            'template' => 'form-builder::component.checkable',
+            'class' => null,
+        ),
+    ),
+
+    'radios' => array(
+        'options' => array(
+            //'class' => null,
+        ),
+    ),
+
+    'checkbox' => array(
+        //'template' => 'form-builder::component.checkable',
+        'attributes' => array(
+            'class' => 'checkbox'
+        ),
+        'options' => array(
+            'class' => null,
+        ),
+    ),
+
     'submit' => array(
         'label' => null,
         'options' => array(

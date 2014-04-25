@@ -44,6 +44,17 @@ class Field extends Container {
 
     protected function makeLabel()
     {
+        $label = $this->getLabelText();
+        $options = array_get($this->config, 'label');
+
+        //unset($options['label']);
+
+        return HTML::decode(FormBuilder::label($this->name, $label, $options));
+    }
+
+
+    protected function getLabelText()
+    {
         $label = parent::makeLabel();
         if ($label === null) {
             return null;
@@ -53,10 +64,8 @@ class Field extends Container {
             $label .= array_get($this->config, 'require.text');
         }
 
-        $options = array_get($this->config, 'label');
-        unset($options['label']);
+        return $label;
 
-        return HTML::decode(FormBuilder::label($this->name, $label, $options));
     }
 
 } 
