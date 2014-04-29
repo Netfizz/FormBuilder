@@ -17,6 +17,8 @@ class Container implements Renderable {
 
     protected $name;
 
+    protected $label;
+
     protected $content;
 
     protected $params;
@@ -29,18 +31,6 @@ class Container implements Renderable {
 
     protected $messages;
 
-    //protected $model;
-
-    //protected $parent;
-    //protected $errors;
-
-    //protected $warnings;
-
-    //protected $submit;
-
-    //protected $validator;
-
-
 
     public function __construct($type = 'container', $name, $content = null, $params = array())
     {
@@ -49,8 +39,9 @@ class Container implements Renderable {
         $this->content = $content;
         $this->params = $params;
 
-        $this->setConfig();
-        $this->setMessagesBags();
+        $this->initConfig();
+        $this->initMessagesBags();
+        $this->initLabel();
     }
 
     public function getFormService()
@@ -90,7 +81,7 @@ class Container implements Renderable {
     */
 
 
-    protected function setConfig()
+    protected function initConfig()
     {
         if ( ! is_array($this->params)) {
             throw new RuntimeException( ucfirst($this->name) . ' params is not an array.');
@@ -105,7 +96,7 @@ class Container implements Renderable {
 
 
 
-    protected function setMessagesBags()
+    protected function initMessagesBags()
     {
         $states = array_get($this->config, 'message.states', array());
         $format = array_get($this->config, 'message.format', null);
@@ -161,7 +152,18 @@ class Container implements Renderable {
             }
         }
 
-        return $options;
+        if ( ! array_key_exists('id', $options))
+        {
+            $options['id'] = $this->getId();
+        }
+
+        $exceptions = array(
+            'label'
+        );
+
+
+
+        return array_except($options, $exceptions);
     }
 
     public function get($selector)
@@ -214,9 +216,11 @@ class Container implements Renderable {
         return new Choices('select', $name, $choices, $content, $params);
     }
 
-    public static function radio($name, $choices = array(), $content = null, $params = array())
+    public static function radio($name, $choices = null, $content = null, $params = array())
     {
-        return new Choices('radio', $name, $choices, $content, $params);
+        $type = is_string($choices) ? 'radio' : 'radios';
+
+        return new Choices($type, $name, $choices, $content, $params);
     }
 
     public static function radios($name, $choices = array(), $content = null, $params = array())
@@ -224,14 +228,21 @@ class Container implements Renderable {
         return new Choices('radios', $name, $choices, $content, $params);
     }
 
-    public static function checkbox($name, $choices = array(), $content = null, $params = array())
+    public static function checkbox($name, $choices = null, $content = null, $params = array())
     {
-        return new Choices('checkbox', $name, $choices, $content, $params);
+        $type = is_string($choices) ? 'checkbox' : 'checkboxes';
+
+        return new Choices($type, $name, $choices, $content, $params);
     }
 
     public static function checkboxes($name, $choices = array(), $content = null, $params = array())
     {
         return new Choices('checkboxes', $name, $choices, $content, $params);
+    }
+
+    public static function boolean($name, $choices = null, $content = null, $params = array())
+    {
+        return new Choices('boolean', $name, $choices, $content, $params);
     }
 
     public static function submit($name, $content = null, $params = array())
@@ -293,8 +304,6 @@ class Container implements Renderable {
 
 
 
-
-
     public function setName($name)
     {
         $this->name = $name;
@@ -304,6 +313,17 @@ class Container implements Renderable {
     public function getName()
     {
         return $this->name;
+    }
+
+    public function setType($type)
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     public function getId()
@@ -325,8 +345,6 @@ class Container implements Renderable {
     }
 
 
-
-
     public function setContent($content)
     {
         $this->content = $content;
@@ -344,32 +362,43 @@ class Container implements Renderable {
         return $this->content;
     }
 
-
-    protected function makeLabel() {
-
-        $label = array_get($this->config, 'label');
+    public function initLabel()
+    {
+        $label = array_get($this->config, 'label', null);
 
         if (is_array($label)) {
-            return array_get($label, 'label', ucwords(str_replace(array('_', '[]'), array(' ', ''), $this->getName())));
+            $label = array_get($label, 'label', null);
         }
 
-        if (is_string($label)) {
-            return $label;
+        if ($label === null) {
+            $label = ucwords(str_replace(array('_', '[]'), array(' ', ''), $this->getName()));
         }
 
-        return null;
+        $this->setLabel($label);
     }
 
-    protected function isRequired()
+    public function removeLabel()
     {
+        $this->setLabel(null);
+    }
 
-        if (array_get($this->config, 'required')) {
-            $class = array_get($this->config, 'require.class');
-            $this->addClass($class);
-            return true;
-        }
 
-        return false;
+    public function setLabel($label)
+    {
+        $this->label = $label;
+
+        return $this;
+    }
+
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+
+    protected function makeLabel()
+    {
+        return $this->getLabel();
     }
 
 
@@ -432,22 +461,17 @@ class Container implements Renderable {
     protected function getDatas()
     {
         return array(
-            'message' => $this->makeMessage(),
-            'label' => $this->makeLabel(),
-            'content' => $this->makeContent(),
-            'attributes' => $this->makeAttributes(),
-            'elements' => $this->makeElements(),
+            'message'       => $this->makeMessage(),
+            'content'       => $this->makeContent(),
+            'label'         => $this->makeLabel(),
+            'attributes'    => $this->makeAttributes(),
+            'elements'      => $this->makeElements(),
         );
     }
 
 
     public function render()
     {
-
-        if ($this->type == 'container') {
-            return $this->content;
-        }
-
         return View::make(
             $this->getTemplate(),
             $this->getDatas()

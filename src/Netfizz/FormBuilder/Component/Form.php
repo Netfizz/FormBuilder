@@ -17,8 +17,6 @@ class Form extends Container {
 
 
 
-
-
     public function __construct($name, $content, $options = array())
     {
         $this->options = $options;
@@ -33,13 +31,6 @@ class Form extends Container {
 
         return $this;
     }
-
-    /*
-    public function getModel()
-    {
-        return $this->model;
-    }
-    */
 
 
     protected function makeFormOpenTag()
@@ -69,12 +60,5 @@ class Form extends Container {
         return parent::render();
     }
 
-
-    /*
-    public function __toString()
-    {
-        return (string) $this->render().'FORFFFFFFF';
-    }
-    */
 
 } 

@@ -1,21 +1,24 @@
 <?php namespace Netfizz\FormBuilder\Component;
 
-//use Netfizz\FormBuilder\Component\Container;
 use Illuminate\Support\Facades\Form as FormBuilder;
-//use Illuminate\Html\FormBuilder;
-use HTML, App;
 use Netfizz\FormBuilder\Component;
+use HTML, App;
 
 class Choices extends Field {
 
     protected $choices;
 
-    protected $isMultiple = false;
+    protected $hasMany;     // has many values
 
 
     public function __construct($type, $name, $choices = array(), $selected = null, $options = array())
     {
         $this->choices = $choices;
+
+        if (ends_with($this->name, '[]'))
+        {
+            $this->setHasMany();
+        }
 
         parent::__construct($type, $name, $selected, $options);
     }
@@ -24,62 +27,64 @@ class Choices extends Field {
     protected function makeContent()
     {
         $list = $this->getChoices();
-
-        $type = $this->type;
-        $name = $this->getName();
-        $value = $this->getFormService()->getValueAttribute($name, $this->content);
+        $type = $this->getType();
+        $value = $this->getFormService()->getValueAttribute($this->getName(), $this->content);
         $options = $this->getFlattenOptions();
-
-
-
-        //var_dump($name, $list, $value, $options);
-        var_dump($name, $options);
 
         switch ($type) {
             case 'select' :
-                $content = FormBuilder::select($name, $list, $value, $options);
+                if (array_key_exists('multiple', $this->params) )
+                {
+                    $this->setHasMany();
+                }
+
+                $content = FormBuilder::select($this->getName(), $list, $value, $options);
                 break;
 
             case 'radio' :
             case 'checkbox' :
-                $options = array_except($options, array('template'));
-                $content = sprintf('<label>%s %s</label>', FormBuilder::$type($name, $list, $value, $options), $this->getLabelText());
-                //$content = FormBuilder::$type($name, $list, $value, $options);
+                $content = sprintf('<label>%s %s</label>', FormBuilder::$type($this->getName(), $list, $value, $options), $this->getLabel());
+                $this->removeLabel();
+                break;
+
+            case 'boolean' :
+                $content[] = FormBuilder::hidden($this->getName(), 0);
+                $content[] = sprintf('<label>%s %s</label>', FormBuilder::checkbox($this->getName(), $list, $value, $options), $this->getLabel());
+                $this->removeLabel();
                 break;
 
             case 'radios' :
-
-                $content = array();
-                foreach((array) $list as $val => $label) {
+                foreach((array) $list as $val => $label)
+                {
                     $checked = $value == $val ? true : false;
                     $options = array_merge($options, array('label' => $label));
+                    $options['id'] = $this->getId() . camel_case($val);
 
-                    //$content[] = sprintf('<label>%s %s</label>', FormBuilder::radio($name, $val, $checked, $options), $label);
-                    $content[] = Container::radio($name, $val, $checked, $options);
+                    $content[] = Container::radio($this->getName(), $val, $checked, $options);
                 }
-
-                $content = implode(PHP_EOL, $content);
                 break;
 
             case 'checkboxes' :
-                $content = array();
-                foreach((array) $list as $val => $label) {
+                $this->setHasMany();
+                foreach((array) $list as $val => $label)
+                {
                     $checked = $value == $val ? true : false;
                     $options = array_merge($options, array('label' => $label));
+                    $options['id'] = $this->getId() . camel_case($val);
 
-                    $content[] = sprintf('<label>%s %s</label>', FormBuilder::checkbox($name, $val, $checked, $options), $label);
-                    //$content[] = $label;
+                    $content[] = Container::checkbox($this->getName(), $val, $checked, $options);
                 }
-
-                $content = implode(PHP_EOL, $content);
                 break;
 
+            default:
+                $content = null;
 
         }
 
 
-        return $content;
+        return is_array($content) ? implode(PHP_EOL, $content) : $content;
     }
+
 
     protected function makeId()
     {
@@ -87,7 +92,7 @@ class Choices extends Field {
 
         $choices = $this->getChoices();
         if (is_string($choices)) {
-            $id .= '.' . $choices;
+            $id .= ucfirst(camel_case($choices));
         }
 
         $this->setId($id);
@@ -95,21 +100,12 @@ class Choices extends Field {
         return $id;
     }
 
-    public function makeLabel()
-    {
-        return parent::makeLabel();
-        //return null;
-    }
 
     public function getName()
     {
         $name = $this->name;
 
-        if (ends_with($this->name, '[]'))
-        {
-            $this->setMultiple();
-        }
-        else if (array_key_exists('multiple', $this->params) )
+        if ( $this->hasMany() )
         {
             $name .= '[]';
         }
@@ -117,22 +113,25 @@ class Choices extends Field {
         return $name;
     }
 
-    public function setMultiple()
+
+    public function setHasMany($status = true)
     {
-        $this->params = array_merge($this->params, array('multiple' => 'multiple'));
+        $this->hasMany = $status;
+
         return $this;
     }
 
-    protected function setMultipleType()
+
+    public function hasMany()
     {
-        $this->type = str_plural($this->type);
+        return $this->hasMany;
     }
 
 
     public function getChoices()
     {
         if ( is_array($this->choices) && count($this->choices) > 0 ) {
-            $this->setMultipleType();
+            //$this->setMultipleType();
             return $this->choices;
         }
 
@@ -146,21 +145,15 @@ class Choices extends Field {
 
     protected function autoGenerateChoices()
     {
-        //return range('a', 'f');
+        $this->choices = array();
 
         // check if is a relation field
         if ($relationObj = $this->isRelationshipProperty($this->name))
         {
-            //$this->setRelashionship($this->name, $relationObj, $params);
-
             return $this->getRelatedChoices($relationObj);
-            //var_dump($relationObj);
-
-            //return range('a', 'f');
         }
 
         return array();
-        //return range(1, 10);
     }
 
 
@@ -197,7 +190,7 @@ class Choices extends Field {
         );
 
         if (in_array($relationType, $multipleRelationTypes)) {
-            $this->setMultiple();
+            //$this->setHasManyValues();
         }
 
 
@@ -205,49 +198,6 @@ class Choices extends Field {
         //var_dump($relatedModel::all());
     }
 
-
-    /*
-    protected function setRelashionship($name, $relationObj, &$params)
-    {
-        $relatedModel = $relationObj->getRelated();
-
-        $relationType = class_basename(get_class($relationObj));
-
-        //$params['type'] = 'select';
-        //$params['fromQuery'] = $relatedModel::all();
-
-        //var_dump($relationType);
-
-        switch($relationType) {
-            case 'BelongsTo' :
-                $params['type'] = 'select';
-                $params['choices'] = $this->collectionToArray($relatedModel::all());
-                //$params['fromQuery'] = $relatedModel::all();
-                break;
-
-            case 'BelongsToMany' :
-            case 'MorphMany' :
-                //$params['type'] = 'multiselect';
-                $params['type'] = 'select';
-                $params['multiple'] = 'multiple';
-                $params['choices'] = $this->collectionToArray($relatedModel::all());
-
-                //$params['fromQuery'] = $relatedModel::all();
-
-                //$params['name'] = $name . '[]';
-                //$params['label'] = $name;
-                //$params['multiple'] = true;
-                break;
-
-        }
-
-        if ($this->model) {
-            //$values = $this->model->getAttribute($name)->lists('id');
-
-            //var_dump($name, $this->model->getAttribute($name));
-        }
-    }
-    */
 
     protected function collectionToArray($collection, $value = null, $key = null)
     {

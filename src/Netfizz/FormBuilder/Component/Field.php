@@ -24,7 +24,6 @@ class Field extends Container {
             case 'file' :
             case 'reset' :
             case 'image' :
-            case 'submit' :
                 $content = FormBuilder::input($type, $name, $value, $options);
                 break;
 
@@ -32,8 +31,14 @@ class Field extends Container {
                 $content = FormBuilder::textarea($name, $value, $options);
                 break;
 
+            case 'submit' :
+                $content = FormBuilder::input($type, $name, $value, $options);
+                $this->removeLabel();
+                break;
+
             case 'button':
                 $content = FormBuilder::button($name, $options);
+                $this->removeLabel();
                 break;
 
         }
@@ -44,19 +49,8 @@ class Field extends Container {
 
     protected function makeLabel()
     {
-        $label = $this->getLabelText();
-        $options = array_get($this->config, 'label');
-
-        //unset($options['label']);
-
-        return HTML::decode(FormBuilder::label($this->name, $label, $options));
-    }
-
-
-    protected function getLabelText()
-    {
-        $label = parent::makeLabel();
-        if ($label === null) {
+        $label = $this->getLabel();
+        if ($label == null) {
             return null;
         }
 
@@ -64,8 +58,26 @@ class Field extends Container {
             $label .= array_get($this->config, 'require.text');
         }
 
-        return $label;
+        $options = array_get($this->config, 'label');
+        if (is_array($options) && array_key_exists('label', $options))
+        {
+            unset($options['label']);
+        }
 
+        return HTML::decode(FormBuilder::label($this->getId(), $label, $options));
+    }
+
+
+    protected function isRequired()
+    {
+
+        if (array_get($this->config, 'required')) {
+            $class = array_get($this->config, 'require.class');
+            $this->addClass($class);
+            return true;
+        }
+
+        return false;
     }
 
 } 

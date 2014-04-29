@@ -1,4 +1,4 @@
-<fieldset>
+<fieldset{{ $attributes }}>
     @if (isset($label))
     <legend>{{ $label }}</legend>
     @endif

@@ -75,12 +75,12 @@ return array(
 
 
     'textarea' => array(
-        /*
+
         'label' => array(
             'label' => 'Test BLA BLA',
             'class' => 'control-label'
         ),
-        */
+        //'required' => true,
         'options' => array(
             'class' => 'form-control test2',
             'att' => array('c', 'd'),
@@ -97,25 +97,24 @@ return array(
         ),
     ),
 
+
     'radio' => array(
-        //'template' => 'form-builder::component.checkable',
         'attributes' => array(
             'class' => 'radio'
         ),
         'options' => array(
-            'template' => 'form-builder::component.checkable',
             'class' => null,
         ),
     ),
 
     'radios' => array(
         'options' => array(
-            //'class' => null,
+            'class' => null,
         ),
     ),
 
+
     'checkbox' => array(
-        //'template' => 'form-builder::component.checkable',
         'attributes' => array(
             'class' => 'checkbox'
         ),
@@ -123,6 +122,24 @@ return array(
             'class' => null,
         ),
     ),
+
+    'checkboxes' => array(
+        'options' => array(
+            'class' => null,
+        ),
+    ),
+
+
+    'boolean' => array(
+        'attributes' => array(
+            'class' => 'checkbox'
+        ),
+        'options' => array(
+            'class' => null,
+        ),
+    ),
+
+
 
     'submit' => array(
         'label' => null,
