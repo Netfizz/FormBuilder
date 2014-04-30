@@ -1,11 +1,11 @@
 <?php namespace Netfizz\FormBuilder\Component;
 
-use ClassesWithParents\A;
-use Netfizz\FormBuilder\Component\Container;
+//use ClassesWithParents\A;
+use Netfizz\FormBuilder\Component;
 use HTML, stdClass;
 
 
-class Tabs extends Container {
+class Tabs extends Component {
 
     protected $tab;
 

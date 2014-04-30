@@ -60,7 +60,7 @@ class Choices extends Field {
                     $options = array_merge($options, array('label' => $label));
                     $options['id'] = $this->getId() . camel_case($val);
 
-                    $content[] = Container::radio($this->getName(), $val, $checked, $options);
+                    $content[] = Component::radio($this->getName(), $val, $checked, $options);
                 }
                 break;
 
@@ -72,7 +72,7 @@ class Choices extends Field {
                     $options = array_merge($options, array('label' => $label));
                     $options['id'] = $this->getId() . camel_case($val);
 
-                    $content[] = Container::checkbox($this->getName(), $val, $checked, $options);
+                    $content[] = Component::checkbox($this->getName(), $val, $checked, $options);
                 }
                 break;
 

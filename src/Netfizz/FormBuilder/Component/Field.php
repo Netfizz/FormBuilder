@@ -1,11 +1,10 @@
 <?php namespace Netfizz\FormBuilder\Component;
 
-//use Netfizz\FormBuilder\Component\Container;
+use Netfizz\FormBuilder\Component;
 use Illuminate\Support\Facades\Form as FormBuilder;
-//use Illuminate\Html\FormBuilder;
 use HTML;
 
-class Field extends Container {
+class Field extends Component {
 
 
     protected function makeContent()

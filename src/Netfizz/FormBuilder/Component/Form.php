@@ -1,9 +1,9 @@
 <?php namespace Netfizz\FormBuilder\Component;
 
-use Netfizz\FormBuilder\Component\Container;
+use Netfizz\FormBuilder\Component;
 use Illuminate\Support\Facades\Form as FormBuilder;
 
-class Form extends Container {
+class Form extends Component {
 
     protected $type = 'form';
 

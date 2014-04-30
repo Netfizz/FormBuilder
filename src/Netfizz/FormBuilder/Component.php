@@ -1,327 +1,315 @@
 <?php namespace Netfizz\FormBuilder;
 
-use Netfizz\FormBuilder\Component\Element;
-use Netfizz\Core\Traits\Attributes;
-use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Contracts\RenderableInterface as Renderable;
+use Netfizz\FormBuilder\Component\Form;
+use Netfizz\FormBuilder\Component\Field;
+use Netfizz\FormBuilder\Component\Choices;
+use Netfizz\FormBuilder\Component\Tabs;
+use Illuminate\Support\MessageBag;
+use View, Config, HTML, App, Session, RuntimeException;
 
-
-use Config, Form, View, RuntimeException, App;
-
-class Component {
-
-    use Attributes;
+class Component implements Renderable {
 
     protected $config;
 
-    protected $name;
-
     protected $type;
 
-    protected $value;
+    protected $id;
 
-    protected $options;
-
-    protected $attributes;
-
-    protected $choices;
+    protected $name;
 
     protected $label;
 
-    protected $elements;    // field, append, prepend, label
-
-    protected static $elementsName = array();
-
-    protected $template;
+    protected $content;
 
     protected $params;
 
-    protected $childs;      // childs components
+    protected $elements = array();
 
-    //protected $view;
+    protected $template;
 
-    public function __construct($name, $type = 'text', $params = array())
+    protected $attributes;
+
+    protected $messages;
+
+
+    public function __construct($type = 'container', $name, $content = null, $params = array())
+    {
+        $this->type = $type;
+        $this->name = $name;
+        $this->content = $content;
+        $this->params = $params;
+
+        $this->initConfig();
+        $this->initMessagesBags();
+        $this->initLabel();
+    }
+
+    public function getFormService()
+    {
+        return App::make('formizz');
+    }
+
+    public function getModel()
+    {
+        return $formService = $this->getFormService()->getModel();
+    }
+
+    /*
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
+    }
+
+    public function getParent()
+    {
+        //return parent::getInstance();
+        return $this->parent;
+    }
+
+
+    public function getInstance()
+    {
+        return $this;
+    }
+    */
+
+    /*
+    public function setModel($model)
+    {
+        $this->model = $model;
+    }
+    */
+
+
+    protected function initConfig()
+    {
+        if ( ! is_array($this->params)) {
+            throw new RuntimeException( ucfirst($this->name) . ' params is not an array.');
+        }
+
+        $commonConfig = Config::get('form-builder::component.*', array());
+
+        $defaultTypeConfig = Config::get('form-builder::component.'.$this->type, array());
+
+        $this->config = array_merge($commonConfig, $defaultTypeConfig, $this->params);
+    }
+
+
+
+    protected function initMessagesBags()
+    {
+        $states = array_get($this->config, 'messages', array());
+
+        foreach ($states as $state => $params)
+        {
+            if (! $message = Session::get($state))
+            {
+                $message = new MessageBag;
+            }
+            //$format = array_get($this->config, 'message.format', null);
+            $message->setFormat($params['format']);
+
+            $this->messages[$state] = $message;
+        }
+    }
+
+    public function makeMessage()
     {
 
-        //$this->view = App::make('view');
+        $states = array_get($this->config, 'messages', array());
 
-        $this->setConfig(Config::get('form-builder::default', array()))
-            ->setName($name)
-            ->setType($type)
-            ->setParams($params);
+        foreach($states as $state => $params)
+        {
+            if ($this->messages[$state]->has($this->name)) {
+
+                $this->addClass($params['wrapperClass']);
+
+                $message = $this->messages[$state]->first($this->name);
+
+                return is_array($message) ? implode(PHP_EOL, $message) : $message;
+            }
+        }
+
+        return null;
+    }
+
+
+    protected function getOptions()
+    {
+        $options = array_get($this->config, 'options', array());
+
+        return array_merge($options, $this->params);
+    }
+
+    protected function getFlattenOptions()
+    {
+        $options = $this->getOptions();
+        foreach($options as &$option) {
+            if (is_array($option)) {
+                $option = implode(' ', $option);
+            }
+        }
+
+        if ( ! array_key_exists('id', $options))
+        {
+            $options['id'] = $this->getId();
+        }
+
+        $exceptions = array(
+            'label'
+        );
+
+
+
+        return array_except($options, $exceptions);
+    }
+
+    public function get($selector)
+    {
+        // todo : créer une fonction qui retourne tous les éléments imbriqué pour pouvoir les cherchers
+
+        $element = array_get($this->elements, $selector);
+
+        return $element;
+    }
+
+    public static function create($name, $content = null, $params = array())
+    {
+        return new self('container', $name, $content, $params);
+    }
+
+    public static function form($name, $content = null, $params = array())
+    {
+        return new Form($name, $content, $params);
+    }
+
+    public static function fieldset($name, $content = null, $params = array())
+    {
+        return new self('fieldset', $name, $content, $params);
+    }
+
+    public static function tabs($name, $content = null, $params = array())
+    {
+        return new Tabs('tabs', $name, $content, $params);
+    }
+
+    public static function tab($name, $content = null, $params = array())
+    {
+        return new Tabs('tab', $name, $content, $params);
+    }
+
+    public static function text($name, $content = null, $params = array())
+    {
+        return new Field('text', $name, $content, $params);
+    }
+
+    public static function email($name, $content = null, $params = array())
+    {
+        return new Field('email', $name, $content, $params);
+    }
+
+    public static function textarea($name, $content = null, $params = array())
+    {
+        return new Field('textarea', $name, $content, $params);
+    }
+
+    public static function select($name, $choices = array(), $content = null, $params = array())
+    {
+        return new Choices('select', $name, $choices, $content, $params);
+    }
+
+    public static function multiselect($name, $choices = array(), $content = null, $params = array())
+    {
+        $params = array_merge($params, array('multiple' => 'multiple'));
+        return new Choices('select', $name, $choices, $content, $params);
+    }
+
+    public static function radio($name, $choices = null, $content = null, $params = array())
+    {
+        $type = is_string($choices) ? 'radio' : 'radios';
+
+        return new Choices($type, $name, $choices, $content, $params);
+    }
+
+    public static function radios($name, $choices = array(), $content = null, $params = array())
+    {
+        return new Choices('radios', $name, $choices, $content, $params);
+    }
+
+    public static function checkbox($name, $choices = null, $content = null, $params = array())
+    {
+        $type = is_string($choices) ? 'checkbox' : 'checkboxes';
+
+        return new Choices($type, $name, $choices, $content, $params);
+    }
+
+    public static function checkboxes($name, $choices = array(), $content = null, $params = array())
+    {
+        return new Choices('checkboxes', $name, $choices, $content, $params);
+    }
+
+    public static function boolean($name, $choices = null, $content = null, $params = array())
+    {
+        return new Choices('boolean', $name, $choices, $content, $params);
+    }
+
+    public static function submit($name, $content = null, $params = array())
+    {
+        return new Field('submit', $name, $content, $params);
+    }
+
+    public static function button($name, $content = null, $params = array())
+    {
+        return new Field('button', $name, $content, $params);
     }
 
 
     /**
-     * @param $config
      * @return $this
      */
-    public function setConfig($config)
+    public function add()
     {
-        $this->config = $config;
-        return $this;
-    }
+        $elements = array();
 
-    protected function setDefaultParams()
-    {
-        $all = array_get($this->config, 'default.*', array());
-
-        $type = array_get($this->config, 'default.' . $this->type, array());
-
-        $default = array_merge($all, $type);
-
-        $this->params = $default;
-
-        return $this;
-    }
-
-
-
-
-    public function setParams(array $params, $clear = false)
-    {
-        // set default params for this component type if is not set OR if type change
-        if ($clear || is_null($this->params) || ( isset($params['type']) && $params['type'] != $this->type ))
+        foreach(func_get_args() as $delta => $element)
         {
-            $this->setDefaultParams();
-        }
-
-        // merge params with default params
-        $this->params = array_merge($this->params, $params);
-
-        //$fieldAttributes = $this->params;
-        foreach(array_keys($this->params) as $name)
-        {
-            $this->callParamMethod($name);
-        }
-
-        //var_dump('setParam', $fieldParams);
-
-        // todo : a supprimer,
-        //$template = $this->getTemplate();
-        //$this->getElements($template);
-
-        return $this;
-    }
-
-    protected function setOptions($options = null)
-    {
-        if ( ! $this->options && is_null($options) ) {
-            $this->options = $this->params;
-
-            foreach (array_keys($this->options) as $option)
+            // Todo : remplacer Renderable par une interface pour les champs
+            if ($element instanceof Renderable)
             {
-                if (method_exists($this, 'set' . ucfirst($option)))
-                {
-                    unset($this->options[$option]);
-                }
+                $id = $element->getId() ?: $delta;
+                $elements[$id] = $element;
+            }
+            elseif (is_string($element))
+            {
+                $elements[$delta] = Component::create($delta, $element);
             }
         }
 
-        //$this->options = array_except($this->options, )
-        //$this->
-    }
+        $this->elements = array_merge($this->elements, $elements);
 
-    protected function getFieldOptions()
-    {
-        /*
-        $template = $this->getTemplate();
-
-        $exception = $this->getElementNamesFromTemplate($template);
-        $option = array_except($this->params, $exception);
-
-        var_dump($notAttributesParams);
-        */
-
-        if ( array_key_exists('field', $this->params) )
-        {
-            foreach($this->params['field'] as &$value) {
-                if (is_array($value)) {
-                    $value = implode(' ', $value);
-                }
-            }
-
-            return $this->params['field'];
-        }
-
-        return array();
-    }
-
-
-    protected function callParamMethod($name)
-    {
-        if (array_key_exists($name, $this->params) && method_exists($this, 'set' . ucfirst($name)))
-        {
-            $method = 'set' . ucfirst($name);
-            $this->$method($this->params[$name]);
-            //unset($params[$name]);
-        }
-    }
-
-
-    public function getElements($template)
-    {
-        if ( is_null($elementNames = $this->getElementNamesFromTemplate($template)))
-        {
-            return array();
-        }
-
-        $this->makeElements($elementNames);
-
-        return $this->elements;
-    }
-
-
-    protected function makeElements($elementNames)
-    {
-
-        foreach (array_except($elementNames, 'field') as $name)
-        {
-            $attributes = array_key_exists($name, $this->params) ? $this->params[$name] : array();
-
-            $this->makeElement($name, $attributes);
-        }
-
-
-        $this->makeFieldElement();
-    }
-
-    protected function makeFieldElement()
-    {
-        // input($type, $name, $value = null, $options = array())
-        // textarea($name, $value = null, $options = array())
-        // select($name, $list = array(), $selected = null, $options = array())
-        // checkable($type, $name, $value, $checked, $options)
-        // button($value = null, $options = array())
-        // macro
-
-        // input        $type, $name, $value,           $options
-        // textarea            $name, $value,           $options
-        // select              $name, $list, $selected, $options
-        // checkable    $type, $name, $value, $checked, $options
-        // button                     $value,           $options
-        // macro
-
-        $type = $this->type;
-        $name = $this->getName();
-        $value = null;
-        $options = $this->getFieldOptions();
-        //$options = array();
-        //$value = null;
-        $list = $this->getChoices();
-
-        //var_dump($this->getFieldOptions());
-        //$content[] = Form::text($this->getName(), null);
-
-        switch ($type) {
-            case 'select' :
-                $content[] = $this->makeLabel();
-                $content[] = Form::select($name, $list, $value, $options);
-                break;
-
-            case 'textarea' :
-                $content[] = $this->makeLabel();
-                $content[] = Form::textarea($name, $value, $options);
-                break;
-
-            case 'text' :
-            case 'password' :
-            case 'hidden' :
-            case 'email' :
-            case 'url' :
-            case 'file' :
-            case 'reset' :
-            case 'image' :
-            case 'submit' :
-                $content[] = $this->makeLabel();
-                $content[] = Form::input($type, $name, $value, $options);
-                break;
-        }
-
-        $this->makeElement('field', array('content' => $content));
-    }
-
-    protected function makeLabel()
-    {
-        return Form::label($this->getName(), $this->getLabel());
-    }
-
-    public function makeElement($name, $attributes)
-    {
-        $content = null;
-        if ( ! is_array($attributes) )
-        {
-            $content = $attributes;
-        }
-        else if ( array_key_exists('content', $attributes))
-        {
-            $content = $attributes['content'];
-        } else {
-            $content = null;
-        }
-
-        $this->elements[$name] = new Element($content, $attributes);
-    }
-
-
-    public function getElement($name)
-    {
-        return array_key_exists($name, $this->elements) ?
-            $this->elements[$name] : null;
-    }
-
-
-    public function setElement($name, Element $element)
-    {
-        $this->elements[$name] = $element;
-    }
-
-
-
-    /**
-     * Get not compiled component template content
-     *
-     * @param null $template
-     * @return string
-     */
-    protected function getTemplateContent($template = null)
-    {
-        if ( is_null($template) ) {
-            $template = $this->getTemplate();
-        }
-
-        $finder = View::getFinder();
-        $filesystem = $finder->getFilesystem();
-
-        return $filesystem->get($finder->find($template));
+        return $this;
     }
 
 
     /**
-     * Get every elements component names in template
-     *
      * @param $template
-     * @return array
+     * @return $this
      */
-    protected function getElementNamesFromTemplate($template)
+    public function setTemplate($template)
     {
-        if( ! array_key_exists($template, self::$elementsName) )
-        {
-            //var_dump('RUN RUN RUN -> '.$template);
-            $content = $this->getTemplateContent($template);
-
-            // extract every $variable into {{ ... }} and $variable->attributes()
-            preg_match_all('/{{\s*\$([A-Za-z0-9_]+?)(|\s*or .+?|->attributes.+?)\s*}}/s', $content, $matches);
-
-            self::$elementsName[$template] = array_key_exists(1, $matches) ? array_unique($matches[1]) : array();
-        }
-
-        return self::$elementsName[$template];
+        $this->template = $template;
+        return $this;
     }
 
 
-
-
-
+    /**
+     * @return mixed
+     */
+    public function getTemplate()
+    {
+        return $this->template ?: array_get($this->config, 'template', 'form-builder::component.field');
+    }
 
     public function setName($name)
     {
@@ -334,137 +322,169 @@ class Component {
         return $this->name;
     }
 
-
     public function setType($type)
     {
         $this->type = $type;
         return $this;
     }
 
-
-    public function setValue($value)
+    public function getType()
     {
-        $this->value = $value;
+        return $this->type;
+    }
+
+    public function getId()
+    {
+        return $this->id ?: $this->makeId();
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    protected function makeId()
+    {
+        $id = $this->name;
+        $this->setId($id);
+
+        return $id;
+    }
+
+
+    public function setContent($content)
+    {
+        $this->content = $content;
         return $this;
+    }
+
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+
+    protected function makeContent()
+    {
+        return $this->content;
+    }
+
+    public function initLabel()
+    {
+        $label = array_get($this->config, 'label', false);
+
+        if (is_array($label)) {
+            $label = array_get($label, 'label', false);
+        }
+
+        if ($label === false) {
+            $label = $this->autoGenerateLabel();
+        }
+
+        $this->setLabel($label);
+    }
+
+    public function autoGenerateLabel()
+    {
+        return ucwords(str_replace(array('_', '[]'), array(' ', ''), $this->getName()));
+    }
+
+    public function removeLabel()
+    {
+        $this->setLabel(null);
     }
 
 
     public function setLabel($label)
     {
+        $this->label = $label;
 
-        //if ($this->params['label'])
-
-        //var_dump('$label', $label);
-
-
-        if ( is_array($label) )
-        {
-            $this->params['label'] = array_merge($this->params['label'], $label);
-        }
-        else if ( is_string($label))
-        {
-            $this->params['label']['content'] = $label;
-        }
-
-        if ( ! array_key_exists('content', $this->params['label'])) {
-            $this->params['label']['content'] = ucfirst($this->getName());
-        }
-
-        // todo : add required
-
-        //$this->label = $label;
         return $this;
     }
-
 
     public function getLabel()
     {
-        return $this->params['label']['content'];
+        return $this->label;
     }
 
 
+    protected function makeLabel()
+    {
+        return $this->getLabel();
+    }
 
-    /*
-    public function getAttributes() {
 
-        if ($this->attributes === null) {
-            $this->setDefaultAttributes();
+    protected function makeWrapperAttributes()
+    {
+        $attributes = $this->attributes ?: array_get($this->config, 'wrapper');
+
+        if ( ! is_array($attributes)) {
+            return null;
         }
 
-        return $this->attributes;
-    }
-
-    protected function setDefaultAttributes()
-    {
-        $all = array_get($this->config, 'default.*', array());
-
-        $type = array_get($this->config, 'default.' . $this->type, array());
-
-        $this->attributes = array_merge($all, $type);
-
-        return $this;
-    }
-    */
-
-
-    public function setChoices($choices)
-    {
-        $this->choices = $choices;
-        return $this;
-    }
-
-    public function getChoices()
-    {
-        return $this->choices;
-    }
-
-    public function setTemplate($template)
-    {
-        $this->template = $template;
-        return $this;
-    }
-
-
-    public function getTemplate()
-    {
-        if ($this->template === null) {
-            $this->template = array_get($this->params, 'template', 'form-builder::component');
+        foreach($attributes as &$value) {
+            if (is_array($value)) {
+                $value = implode(' ', $value);
+            }
         }
 
-        if ( ! View::exists($this->template) )
+        return HTML::attributes($attributes);
+    }
+
+
+    public function setElements($elements)
+    {
+        $this->elements = $elements;
+        return $this;
+    }
+
+    public function getElements()
+    {
+        return $this->elements;
+    }
+
+    public function makeElements()
+    {
+        return $this->getElements();
+    }
+
+
+    public function addClass($class, $element = 'container')
+    {
+        if ($element == 'container')
         {
-            throw new RuntimeException('Template' . $this->template . ' doesn\'t exist.');
+            $currentClass = array_get($this->config, 'wrapper.class');
+
+            if (! is_array($currentClass)) {
+                $currentClass = array($currentClass);
+            }
+
+            $currentClass[] = $class;
+
+            array_set($this->config, 'wrapper.class', $currentClass);
         }
-
-        return $this->template;
     }
 
 
-    public function get()
+
+    protected function getDatas()
     {
-        return $this;
+        return array(
+            'message'       => $this->makeMessage(),
+            'content'       => $this->makeContent(),
+            'label'         => $this->makeLabel(),
+            'attributes'    => $this->makeWrapperAttributes(),
+            'elements'      => $this->makeElements(),
+        );
     }
 
 
-    public function render($template = null)
+    public function render()
     {
-        if(is_null($template)) {
-            $template = $this->getTemplate();
-        }
-
-        $elements = $this->getElements($template);
-
-        //var_dump($elements);
-        return ' component <br />';
-        return View::make($template, $elements);
-    }
-
-
-    protected function make()
-    {
-        // multiselect
-        // checkboxes
-        // radios
+        return View::make(
+            $this->getTemplate(),
+            $this->getDatas()
+        );
     }
 
 
@@ -472,4 +492,4 @@ class Component {
     {
         return (string) $this->render();
     }
-} 
+}
