@@ -98,17 +98,16 @@ class Container implements Renderable {
 
     protected function initMessagesBags()
     {
-        $states = array_get($this->config, 'message.states', array());
-        $format = array_get($this->config, 'message.format', null);
+        $states = array_get($this->config, 'messages', array());
 
-        foreach ($states as $state => $value)
+        foreach ($states as $state => $params)
         {
             if (! $message = Session::get($state))
             {
                 $message = new MessageBag;
             }
-
-            $message->setFormat($format);
+            //$format = array_get($this->config, 'message.format', null);
+            $message->setFormat($params['format']);
 
             $this->messages[$state] = $message;
         }
@@ -117,16 +116,15 @@ class Container implements Renderable {
     public function makeMessage()
     {
 
-        $states = array_get($this->config, 'message.states', array());
-        $showMethod = array_get($this->config, 'message.show', 'first');
+        $states = array_get($this->config, 'messages', array());
 
-        foreach($states as $state => $class)
+        foreach($states as $state => $params)
         {
             if ($this->messages[$state]->has($this->name)) {
 
-                $this->addClass($class);
+                $this->addClass($params['wrapperClass']);
 
-                $message = $this->messages[$state]->$showMethod($this->name);
+                $message = $this->messages[$state]->first($this->name);
 
                 return is_array($message) ? implode(PHP_EOL, $message) : $message;
             }

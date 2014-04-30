@@ -7,41 +7,39 @@ return array(
         // Blade template path for rendering component
         'template' => 'form-builder::component.field',
 
+
         // The class to be added to required fields
         'require' => array(
             'text' => ' <sup>*</sup>',
             'class' => 'required',
         ),
-        /*
-        'class' => array(
-            'required'  => 'required',
 
-        ),
-        */
-
-        // messageBag Formating when there are error
-        //'messageBagFormat' => '<p>:message</p>',
 
         // messageBag
-        'message' => array(
-            'format' => '<p class="alert alert-danger">:message</p>',
-            'show' => 'first', // or 'get' all
-            'states' => array(
-                'errors'     => 'has-error',
-                'warnings'   => 'has-warning',
-                'success'   => 'has-success'
+        'messages' => array(
+            'errors'     => array(
+                'wrapperClass' => 'has-error',
+                'format' => '<p class="alert alert-danger">:message</p>',
+            ),
+            'warnings'     => array(
+                'wrapperClass' => 'has-warning',
+                'format' => '<p class="alert alert-warning">:message</p>',
+            ),
+            'success'     => array(
+                'wrapperClass' => 'has-success',
+                'format' => '<p class="alert alert-success">:message</p>',
             )
+        ),
+
+        // Container attributes
+        'attributes' => array(
+            'class' => 'form-group'
         ),
 
 
         // Input options
         'options' => array(
             'class' => 'form-control',
-        ),
-
-        // Container attributes
-        'attributes' => array(
-            'class' => 'form-group'
         ),
 
         // Labels
