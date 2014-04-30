@@ -5,6 +5,11 @@ use Illuminate\Database\Eloquent\Collection;
 
 class FormBuilder extends DefaultFormBuilder {
 
+    /**
+     * Get model instance
+     *
+     * @return mixed
+     */
     public function getModel()
     {
         return $this->model;

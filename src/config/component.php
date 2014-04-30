@@ -32,7 +32,7 @@ return array(
         ),
 
         // Container attributes
-        'attributes' => array(
+        'wrapper' => array(
             'class' => 'form-group'
         ),
 
@@ -69,7 +69,7 @@ return array(
 
     'tab' => array(
         'label' => null,
-        'attributes' => array(
+        'wrapper' => array(
             'class' => 'tab-pane'
         ),
 
@@ -106,7 +106,7 @@ return array(
 
 
     'radio' => array(
-        'attributes' => array(
+        'wrapper' => array(
             'class' => 'radio'
         ),
         'options' => array(
@@ -122,7 +122,7 @@ return array(
 
 
     'checkbox' => array(
-        'attributes' => array(
+        'wrapper' => array(
             'class' => 'checkbox'
         ),
         'options' => array(
@@ -138,7 +138,7 @@ return array(
 
 
     'boolean' => array(
-        'attributes' => array(
+        'wrapper' => array(
             'class' => 'checkbox'
         ),
         'options' => array(

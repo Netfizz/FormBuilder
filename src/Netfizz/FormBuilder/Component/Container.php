@@ -307,10 +307,8 @@ class Container implements Renderable {
      */
     public function getTemplate()
     {
-        return $this->template ?: array_get($this->config, 'template', 'form-builder::container');
+        return $this->template ?: array_get($this->config, 'template', 'form-builder::component.field');
     }
-
-
 
     public function setName($name)
     {
@@ -415,9 +413,9 @@ class Container implements Renderable {
     }
 
 
-    protected function makeAttributes()
+    protected function makeWrapperAttributes()
     {
-        $attributes = $this->attributes ?: array_get($this->config, 'attributes');
+        $attributes = $this->attributes ?: array_get($this->config, 'wrapper');
 
         if ( ! is_array($attributes)) {
             return null;
@@ -429,13 +427,6 @@ class Container implements Renderable {
             }
         }
 
-        /*
-        if ( ! array_key_exists('id', $attributes))
-        {
-            $attributes['id'] = $this->getId();
-        }
-        */
-
         return HTML::attributes($attributes);
     }
 
@@ -446,7 +437,6 @@ class Container implements Renderable {
         return $this;
     }
 
-
     public function getElements()
     {
         return $this->elements;
@@ -454,17 +444,15 @@ class Container implements Renderable {
 
     public function makeElements()
     {
-        return $this->elements;
+        return $this->getElements();
     }
-
-
 
 
     public function addClass($class, $element = 'container')
     {
         if ($element == 'container')
         {
-            $currentClass = array_get($this->config, 'attributes.class');
+            $currentClass = array_get($this->config, 'wrapper.class');
 
             if (! is_array($currentClass)) {
                 $currentClass = array($currentClass);
@@ -472,7 +460,7 @@ class Container implements Renderable {
 
             $currentClass[] = $class;
 
-            array_set($this->config, 'attributes.class', $currentClass);
+            array_set($this->config, 'wrapper.class', $currentClass);
         }
     }
 
@@ -484,7 +472,7 @@ class Container implements Renderable {
             'message'       => $this->makeMessage(),
             'content'       => $this->makeContent(),
             'label'         => $this->makeLabel(),
-            'attributes'    => $this->makeAttributes(),
+            'attributes'    => $this->makeWrapperAttributes(),
             'elements'      => $this->makeElements(),
         );
     }

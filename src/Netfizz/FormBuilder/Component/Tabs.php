@@ -9,9 +9,9 @@ class Tabs extends Container {
 
     protected $tab;
 
-    protected function makeAttributes()
+    protected function makeWrapperAttributes()
     {
-        $attributes = $this->attributes ?: array_get($this->config, 'attributes');
+        $attributes = $this->attributes ?: array_get($this->config, 'wrapper');
 
         if ( ! is_array($attributes)) {
             return null;
