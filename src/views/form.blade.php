@@ -1,9 +1,9 @@
-{{ $form->open }}
+{{ $formOpenTag }}
 
-    @foreach ($form->elements as $element)
+    {{ $content }}
+
+    @foreach ($elements as $element)
         {{ $element }}
     @endforeach
 
-    {{ $form->buttons }}
-
-{{ $form->close }}form.blade.php
+{{ $formCloseTag}}

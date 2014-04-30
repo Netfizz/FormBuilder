@@ -33,7 +33,8 @@ return array(
 
         // Container attributes
         'wrapper' => array(
-            'class' => 'form-group'
+            'class' => 'form-group',
+            //'style' => 'border: 1px solid #ccc; padding: 20px; margin: 20px;'
         ),
 
 
@@ -51,7 +52,7 @@ return array(
 
 
     'form' => array(
-        'template' => 'form-builder::component.form',
+        'template' => 'form-builder::form',
 
         // Input options
         'options' => array(
