@@ -65,7 +65,16 @@ return array(
 
 
     'tabs' => array(
-        //'template' => 'form-builder::component.tabs',
+        'template' => 'form-builder::component.tabs',
+        'label' => null
+    ),
+
+    'tab' => array(
+        'label' => null,
+        'attributes' => array(
+            'class' => 'tab-pane'
+        ),
+
     ),
 
 

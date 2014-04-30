@@ -130,12 +130,13 @@ class Choices extends Field {
 
     public function getChoices()
     {
-        if ( is_array($this->choices) && count($this->choices) > 0 ) {
-            //$this->setMultipleType();
+        if ( is_array($this->choices) && count($this->choices) > 0 )
+        {
             return $this->choices;
         }
 
-        if (is_string($this->choices)) {
+        if (is_string($this->choices))
+        {
             return $this->choices;
         }
 

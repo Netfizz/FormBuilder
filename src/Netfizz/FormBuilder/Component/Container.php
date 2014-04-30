@@ -190,6 +190,16 @@ class Container implements Renderable {
         return new self('fieldset', $name, $content, $params);
     }
 
+    public static function tabs($name, $content = null, $params = array())
+    {
+        return new Tabs('tabs', $name, $content, $params);
+    }
+
+    public static function tab($name, $content = null, $params = array())
+    {
+        return new Tabs('tab', $name, $content, $params);
+    }
+
     public static function text($name, $content = null, $params = array())
     {
         return new Field('text', $name, $content, $params);
@@ -364,17 +374,22 @@ class Container implements Renderable {
 
     public function initLabel()
     {
-        $label = array_get($this->config, 'label', null);
+        $label = array_get($this->config, 'label', false);
 
         if (is_array($label)) {
-            $label = array_get($label, 'label', null);
+            $label = array_get($label, 'label', false);
         }
 
-        if ($label === null) {
-            $label = ucwords(str_replace(array('_', '[]'), array(' ', ''), $this->getName()));
+        if ($label === false) {
+            $label = $this->autoGenerateLabel();
         }
 
         $this->setLabel($label);
+    }
+
+    public function autoGenerateLabel()
+    {
+        return ucwords(str_replace(array('_', '[]'), array(' ', ''), $this->getName()));
     }
 
     public function removeLabel()
@@ -415,6 +430,13 @@ class Container implements Renderable {
                 $value = implode(' ', $value);
             }
         }
+
+        /*
+        if ( ! array_key_exists('id', $attributes))
+        {
+            $attributes['id'] = $this->getId();
+        }
+        */
 
         return HTML::attributes($attributes);
     }
