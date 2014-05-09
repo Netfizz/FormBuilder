@@ -12,7 +12,12 @@ class Field extends Component {
         $type = $this->type;
         $name = $this->name;
         $value = $this->content;
-        $options = $this->getFlattenOptions();
+        $options = $this->attributes();
+
+        if ( ! array_key_exists('id', $options))
+        {
+            $options['id'] = $this->getId();
+        }
 
         switch ($type) {
             case 'text' :
@@ -69,7 +74,6 @@ class Field extends Component {
 
     protected function isRequired()
     {
-
         if (array_get($this->config, 'required')) {
             $class = array_get($this->config, 'require.class');
             $this->addClass($class);

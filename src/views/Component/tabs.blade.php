@@ -4,8 +4,8 @@
 
     {{ $label }}
 
-    @if (isset($content))
-        <p>{{ $content }}</p>
+    @if (isset($component))
+        <p>{{ $component }}</p>
     @endif
 
 

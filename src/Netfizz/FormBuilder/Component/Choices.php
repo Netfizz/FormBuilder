@@ -29,13 +29,19 @@ class Choices extends Field {
         $list = $this->getChoices();
         $type = $this->getType();
         $value = $this->getFormService()->getValueAttribute($this->getName(), $this->content);
-        $options = $this->getFlattenOptions();
+        $options = $this->attributes();
+        $labelAttributes = $this->attributes('label');
 
         switch ($type) {
             case 'select' :
-                if (array_key_exists('multiple', $this->params) )
+                if (array_key_exists('multiple', $this->config['component']) )
                 {
                     $this->setHasMany();
+                }
+
+                if ( ! array_key_exists('id', $options))
+                {
+                    $options['id'] = $this->getId();
                 }
 
                 $content = FormBuilder::select($this->getName(), $list, $value, $options);
@@ -43,13 +49,21 @@ class Choices extends Field {
 
             case 'radio' :
             case 'checkbox' :
-                $content = sprintf('<label>%s %s</label>', FormBuilder::$type($this->getName(), $list, $value, $options), $this->getLabel());
+                $content = sprintf('<label%s>%s %s</label>',
+                    HTML::attributes($this->array_flatten($labelAttributes)),
+                    FormBuilder::$type($this->getName(), $list, $value, $options),
+                    $this->getLabel());
+
                 $this->removeLabel();
                 break;
 
             case 'boolean' :
                 $content[] = FormBuilder::hidden($this->getName(), 0);
-                $content[] = sprintf('<label>%s %s</label>', FormBuilder::checkbox($this->getName(), $list, $value, $options), $this->getLabel());
+                $content[] = sprintf('<label%s>%s %s</label>',
+                    HTML::attributes($this->array_flatten($labelAttributes)),
+                    FormBuilder::checkbox($this->getName(), $list, $value, $options),
+                    $this->getLabel());
+
                 $this->removeLabel();
                 break;
 
@@ -58,7 +72,7 @@ class Choices extends Field {
                 {
                     $checked = $value == $val ? true : false;
                     $options = array_merge($options, array('label' => $label));
-                    $options['id'] = $this->getId() . camel_case($val);
+                    $options['component']['id'] = $this->getId() . ucfirst(camel_case($val));
 
                     $content[] = Component::radio($this->getName(), $val, $checked, $options);
                 }
@@ -70,7 +84,7 @@ class Choices extends Field {
                 {
                     $checked = $value == $val ? true : false;
                     $options = array_merge($options, array('label' => $label));
-                    $options['id'] = $this->getId() . camel_case($val);
+                    $options['component']['id'] = $this->getId() . ucfirst(camel_case($val));
 
                     $content[] = Component::checkbox($this->getName(), $val, $checked, $options);
                 }
@@ -80,7 +94,6 @@ class Choices extends Field {
                 $content = null;
 
         }
-
 
         return is_array($content) ? implode(PHP_EOL, $content) : $content;
     }

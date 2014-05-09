@@ -9,6 +9,12 @@ class Tabs extends Component {
 
     protected $tab;
 
+    public function getPrefixId()
+    {
+        return 'tab';
+    }
+
+
     protected function makeWrapperAttributes()
     {
         $attributes = $this->attributes ?: array_get($this->config, 'wrapper');

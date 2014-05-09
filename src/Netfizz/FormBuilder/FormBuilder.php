@@ -5,6 +5,8 @@ use Illuminate\Database\Eloquent\Collection;
 
 class FormBuilder extends DefaultFormBuilder {
 
+    protected $formId;
+
     /**
      * Get model instance
      *
@@ -42,4 +44,13 @@ class FormBuilder extends DefaultFormBuilder {
     }
 
 
+    public function getFormId()
+    {
+        return $this->formId;
+    }
+
+    public function setFormId($formId)
+    {
+        $this->formId = $formId;
+    }
 }

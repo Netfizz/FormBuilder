@@ -16,12 +16,31 @@ class Form extends Component {
     protected $model;
 
 
-
     public function __construct($name, $content, $options = array())
     {
         $this->options = $options;
+
+        if ($name === null) {
+            $name = 'form';
+        }
+
+        $this->setPrefixId($name);
+
         parent::__construct('form', $name, $content, $options);
     }
+
+
+    public function getPrefixId()
+    {
+        return null;
+    }
+
+    public function setPrefixId($prefix)
+    {
+        $this->getFormService()->setFormId($prefix);
+        return $this;
+    }
+
 
     public function bind($model)
     {
@@ -36,18 +55,20 @@ class Form extends Component {
     protected function makeFormOpenTag()
     {
         $form = $this->model ?
-            FormBuilder::model($this->model, $this->getOptions()) :
-            FormBuilder::open($this->getOptions());
+            FormBuilder::model($this->model, $this->attributes()) :
+            FormBuilder::open($this->attributes());
 
         return $form;
     }
 
-    protected function makeFormCloseTag() {
+    protected function makeFormCloseTag()
+    {
         return '</form>';
     }
 
 
-    protected function getDatas() {
+    protected function getDatas()
+    {
         return array_merge(parent::getDatas(), array(
             'formOpenTag' => $this->makeFormOpenTag(),
             'formCloseTag' => $this->makeFormCloseTag()

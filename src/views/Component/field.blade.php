@@ -1,8 +1,11 @@
 <div{{ $attributes }}>
 
     {{ $message }}
+
     {{ $label }}
-    {{ $content }}
+    <div class="col-sm-10">
+    {{ $component }}
+    </div>
 
     @foreach ($elements as $element)
         {{ $element }}

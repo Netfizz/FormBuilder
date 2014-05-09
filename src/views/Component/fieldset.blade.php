@@ -4,7 +4,7 @@
     <legend>{{ $label }}</legend>
     @endif
 
-    {{ $content or '' }}
+    {{ $component }}
 
     @foreach ($elements as $element)
         {{ $element }}

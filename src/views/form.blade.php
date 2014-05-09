@@ -1,6 +1,6 @@
 {{ $formOpenTag }}
 
-    {{ $content }}
+    {{ $component }}
 
     @foreach ($elements as $element)
         {{ $element }}

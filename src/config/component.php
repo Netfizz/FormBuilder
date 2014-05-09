@@ -38,24 +38,23 @@ return array(
         ),
 
 
-        // Input options
-        'options' => array(
-            'class' => 'form-control',
+        // Labels attributes
+        'label' => array(
+            'class' => 'control-label col-sm-2'
         ),
 
-        // Labels
-        'label' => array(
-            'class' => 'control-label'
-        )
 
+        // Component attributes (Field input, etc.)
+        'component' => array(
+            'class' => 'form-control',
+        )
     ),
 
 
     'form' => array(
         'template' => 'form-builder::form',
-
-        // Input options
-        'options' => array(
+        'component' => array(
+            'url' => 'admin/posts',
             'method' => 'put',
             'class' => 'form-horizontal',
             'role' => 'form'
@@ -67,6 +66,7 @@ return array(
         'template' => 'form-builder::component.tabs',
         'label' => null
     ),
+
 
     'tab' => array(
         'label' => null,
@@ -83,15 +83,16 @@ return array(
 
 
     'textarea' => array(
-
+        /*
         'label' => array(
             'label' => 'Test BLA BLA',
             'class' => 'control-label'
         ),
-        //'required' => true,
-        'options' => array(
+        'required' => true,
+        */
+        'component' => array(
             'class' => 'form-control test2',
-            'att' => array('c', 'd'),
+            //'att' => array('c', 'd'),
             'rows' => 10,
             'columns' => 20,
         ),
@@ -99,7 +100,7 @@ return array(
 
 
     'multiselect' => array(
-        'options' => array(
+        'component' => array(
             'multiple',
             'class' => 'test',
         ),
@@ -110,13 +111,17 @@ return array(
         'wrapper' => array(
             'class' => 'radio'
         ),
-        'options' => array(
+        'component' => array(
             'class' => null,
+        ),
+        'label' => array(
+            'class' => 'radio-inline',
+            //'foo' => 'bar'
         ),
     ),
 
     'radios' => array(
-        'options' => array(
+        'component' => array(
             'class' => null,
         ),
     ),
@@ -126,13 +131,16 @@ return array(
         'wrapper' => array(
             'class' => 'checkbox'
         ),
-        'options' => array(
+        'component' => array(
             'class' => null,
+        ),
+        'label' => array(
+            'class' => 'checkbox-inline',
         ),
     ),
 
     'checkboxes' => array(
-        'options' => array(
+        'component' => array(
             'class' => null,
         ),
     ),
@@ -142,7 +150,7 @@ return array(
         'wrapper' => array(
             'class' => 'checkbox'
         ),
-        'options' => array(
+        'component' => array(
             'class' => null,
         ),
     ),
@@ -150,15 +158,17 @@ return array(
 
 
     'submit' => array(
+        'template' => 'form-builder::component.button',
         'label' => null,
-        'options' => array(
+        'component' => array(
             'class' => 'btn btn-primary'
         )
     ),
 
     'button' => array(
+        'template' => 'form-builder::component.button',
         'label' => null,
-        'options' => array(
+        'component' => array(
             'type' => 'submit',
             'class' => 'btn btn-primary'
         )

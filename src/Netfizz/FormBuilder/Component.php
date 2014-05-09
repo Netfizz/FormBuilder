@@ -12,6 +12,8 @@ class Component implements Renderable {
 
     protected $config;
 
+    protected $configFile = 'form-builder::component';
+
     protected $type;
 
     protected $id;
@@ -38,63 +40,160 @@ class Component implements Renderable {
         $this->type = $type;
         $this->name = $name;
         $this->content = $content;
-        $this->params = $params;
+        $this->params = (array) $params;
 
         $this->initConfig();
         $this->initMessagesBags();
         $this->initLabel();
     }
 
-    public function getFormService()
+    public function getConfigKey($key)
     {
-        return App::make('formizz');
+        return $this->getConfigFile() . '.' . $key;
     }
 
-    public function getModel()
+    public function getConfigFile()
     {
-        return $formService = $this->getFormService()->getModel();
+        return $this->configFile;
     }
 
-    /*
-    public function setParent($parent)
+    public function setConfigFile($filename)
     {
-        $this->parent = $parent;
-    }
-
-    public function getParent()
-    {
-        //return parent::getInstance();
-        return $this->parent;
-    }
-
-
-    public function getInstance()
-    {
+        $this->configFile = $filename;
         return $this;
     }
-    */
-
-    /*
-    public function setModel($model)
-    {
-        $this->model = $model;
-    }
-    */
 
 
     protected function initConfig()
     {
-        if ( ! is_array($this->params)) {
-            throw new RuntimeException( ucfirst($this->name) . ' params is not an array.');
-        }
 
-        $commonConfig = Config::get('form-builder::component.*', array());
+        // Get common config
+        $common = Config::get($this->getConfigKey('*'), array());
 
-        $defaultTypeConfig = Config::get('form-builder::component.'.$this->type, array());
+        // Get element type config
+        $type = Config::get($this->getConfigKey($this->getType()), array());
 
-        $this->config = array_merge($commonConfig, $defaultTypeConfig, $this->params);
+        //var_dump(array_merge($common, $type, $params));
+
+        // Merge both
+        $this->config = array_merge($common, $type, $this->params);
     }
 
+
+    public function getConfig()
+    {
+        if ($this->config === null)
+        {
+            $this->initConfig();
+        }
+
+        return $this->config;
+    }
+
+    public function setConfig($config)
+    {
+        if ( is_string($config) ) {
+            throw new RuntimeException( ucfirst($config) . ' config is not an array.');
+        }
+
+        $this->config = $config;
+
+        return $this;
+    }
+
+
+
+    public function attribute($name = null, $value = null, $element = 'component')
+    {
+        if ($name === null && $value === null)
+        {
+            return array_get($this->config, $element, array());
+        }
+
+        if ($name && $value === null)
+        {
+            return array_get($this->config[$element], $name, array());
+        }
+
+        if ($name && $value)
+        {
+            array_set($this->config[$element], $name, $value);
+            return $this;
+        }
+    }
+
+
+    public function attributes($element = 'component')
+    {
+        return $this->attribute(null, null, $element);
+    }
+
+
+    protected function array_flatten($array)
+    {
+        if ( ! is_array($array) ) {
+            return array();
+        }
+
+        foreach($array as &$value) {
+            if (is_array($value)) {
+                $value = implode(' ', $value);
+            }
+        }
+
+        return $array;
+    }
+
+    /*
+    protected function getAttributes($element = 'component')
+    {
+        $params = $this->attribute(null, null, $element);
+
+        //var_dump($params);
+
+        foreach($params as $key => $option) {
+            if (is_array($option)) {
+                $params[$key] = implode(' ', $option);
+            }
+        }
+
+        if ($element == 'component' && ! array_key_exists('id', $params))
+        {
+            $params['id'] = $this->getId();
+        }
+
+        $exceptions = array(
+            'label'
+        );
+
+        return array_except($params, $exceptions);
+    }
+    */
+
+    /*
+    protected function getFlattenOptions()
+    {
+        $options = $this->getOptions();
+        foreach($options as &$option) {
+            if (is_array($option)) {
+                $option = implode(' ', $option);
+            }
+        }
+
+        if ( ! array_key_exists('id', $options))
+        {
+            $options['id'] = $this->getId();
+        }
+
+        $exceptions = array(
+            'label'
+        );
+
+
+
+        return array_except($options, $exceptions);
+    }
+    */
 
 
     protected function initMessagesBags()
@@ -135,35 +234,50 @@ class Component implements Renderable {
     }
 
 
-    protected function getOptions()
+    public function getFormService()
     {
-        $options = array_get($this->config, 'options', array());
-
-        return array_merge($options, $this->params);
+        return App::make('formizz');
     }
 
-    protected function getFlattenOptions()
+    public function getModel()
     {
-        $options = $this->getOptions();
-        foreach($options as &$option) {
-            if (is_array($option)) {
-                $option = implode(' ', $option);
-            }
-        }
-
-        if ( ! array_key_exists('id', $options))
-        {
-            $options['id'] = $this->getId();
-        }
-
-        $exceptions = array(
-            'label'
-        );
-
-
-
-        return array_except($options, $exceptions);
+        return $formService = $this->getFormService()->getModel();
     }
+
+    public function required()
+    {
+        $this->config['required'] = true;
+        array_set($this->config, 'component.required', 'required');
+
+        return $this;
+    }
+
+    /*
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
+    }
+
+    public function getParent()
+    {
+        //return parent::getInstance();
+        return $this->parent;
+    }
+
+
+    public function getInstance()
+    {
+        return $this;
+    }
+    */
+
+    /*
+    public function setModel($model)
+    {
+        $this->model = $model;
+    }
+    */
+
 
     public function get($selector)
     {
@@ -179,7 +293,7 @@ class Component implements Renderable {
         return new self('container', $name, $content, $params);
     }
 
-    public static function form($name, $content = null, $params = array())
+    public static function form($name = null, $content = null, $params = array())
     {
         return new Form($name, $content, $params);
     }
@@ -345,10 +459,15 @@ class Component implements Renderable {
 
     protected function makeId()
     {
-        $id = $this->name;
+        $id = $this->getPrefixId().ucfirst($this->name);
         $this->setId($id);
 
         return $id;
+    }
+
+    public function getPrefixId()
+    {
+        return $this->getFormService()->getFormId();
     }
 
 
@@ -416,19 +535,9 @@ class Component implements Renderable {
 
     protected function makeWrapperAttributes()
     {
-        $attributes = $this->attributes ?: array_get($this->config, 'wrapper');
+        $attributes = $this->attributes('wrapper');
 
-        if ( ! is_array($attributes)) {
-            return null;
-        }
-
-        foreach($attributes as &$value) {
-            if (is_array($value)) {
-                $value = implode(' ', $value);
-            }
-        }
-
-        return HTML::attributes($attributes);
+        return HTML::attributes($this->array_flatten($attributes));
     }
 
 
@@ -449,11 +558,12 @@ class Component implements Renderable {
     }
 
 
-    public function addClass($class, $element = 'container')
+    public function addClass($class, $element = 'wrapper')
     {
-        if ($element == 'container')
-        {
-            $currentClass = array_get($this->config, 'wrapper.class');
+        /*
+        //if ($element == 'container')
+        //{
+            $currentClass = array_get($this->config, $element.'.class');
 
             if (! is_array($currentClass)) {
                 $currentClass = array($currentClass);
@@ -461,8 +571,9 @@ class Component implements Renderable {
 
             $currentClass[] = $class;
 
-            array_set($this->config, 'wrapper.class', $currentClass);
-        }
+            array_set($this->config, $element.'.class', $currentClass);
+        //}
+        */
     }
 
 
@@ -471,7 +582,7 @@ class Component implements Renderable {
     {
         return array(
             'message'       => $this->makeMessage(),
-            'content'       => $this->makeContent(),
+            'component'     => $this->makeContent(),
             'label'         => $this->makeLabel(),
             'attributes'    => $this->makeWrapperAttributes(),
             'elements'      => $this->makeElements(),
@@ -481,6 +592,10 @@ class Component implements Renderable {
 
     public function render()
     {
+        //var_dump($this->config); //, $this->getDatas());
+
+        //return true;
+
         return View::make(
             $this->getTemplate(),
             $this->getDatas()
