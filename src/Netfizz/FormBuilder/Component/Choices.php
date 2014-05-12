@@ -68,13 +68,13 @@ class Choices extends Field {
                 break;
 
             case 'radios' :
+            case 'inline_radios' :
                 foreach((array) $list as $val => $label)
                 {
                     $checked = $value == $val ? true : false;
-                    $options = array_merge($options, array('label' => $label));
                     $options['component']['id'] = $this->getId() . ucfirst(camel_case($val));
+                    $content[] = Component::radio($this->getName(), $val, $checked, $options)->setLabel($label);
 
-                    $content[] = Component::radio($this->getName(), $val, $checked, $options);
                 }
                 break;
 
@@ -83,10 +83,10 @@ class Choices extends Field {
                 foreach((array) $list as $val => $label)
                 {
                     $checked = $value == $val ? true : false;
-                    $options = array_merge($options, array('label' => $label));
+                    //$options = array_merge($options, array('label' => $label));
                     $options['component']['id'] = $this->getId() . ucfirst(camel_case($val));
 
-                    $content[] = Component::checkbox($this->getName(), $val, $checked, $options);
+                    $content[] = Component::checkbox($this->getName(), $val, $checked, $options)->setLabel($label);
                 }
                 break;
 

@@ -40,7 +40,7 @@ return array(
 
         // Labels attributes
         'label' => array(
-            'class' => 'control-label'
+            'class' => 'control-label col-sm-2'
         ),
 
 
@@ -54,9 +54,8 @@ return array(
     'form' => array(
         'template' => 'form-builder::form',
         'component' => array(
-            'url' => 'admin/posts',
             'method' => 'put',
-            'class' => null,
+            'class' => 'form-inline',
             'role' => 'form'
         ),
     ),
@@ -114,22 +113,15 @@ return array(
         'component' => array(
             'class' => null,
         ),
+        'label' => array(
+            'class' => 'radio-inline',
+            //'foo' => 'bar'
+        ),
     ),
 
     'radios' => array(
         'component' => array(
             'class' => null,
-        ),
-    ),
-
-    'inline_radios' => array(
-        'template' => 'form-builder::component.twitterBootstrapInline.choices',
-        'component' => array(
-            'template' => 'form-builder::component.twitterBootstrapInline.choice',
-            'class' => null,
-            'label' => array(
-                'class' => 'radio-inline'
-            ),
         ),
     ),
 
@@ -140,6 +132,9 @@ return array(
         ),
         'component' => array(
             'class' => null,
+        ),
+        'label' => array(
+            'class' => 'checkbox-inline',
         ),
     ),
 
@@ -154,13 +149,6 @@ return array(
         'wrapper' => array(
             'class' => 'checkbox'
         ),
-        'component' => array(
-            'class' => null,
-        ),
-    ),
-
-
-    'file' => array(
         'component' => array(
             'class' => null,
         ),

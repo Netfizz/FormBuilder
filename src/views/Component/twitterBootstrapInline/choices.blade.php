@@ -3,10 +3,14 @@
     {{ $message }}
 
     {{ $label }}
-    {{ $component }}
+
+    <div>
+        {{ $component }}
+    </div>
 
     @foreach ($elements as $element)
         {{ $element }}
     @endforeach
+
 
 </div>

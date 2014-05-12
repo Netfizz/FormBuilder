@@ -318,6 +318,17 @@ class Component implements Renderable {
         return new Field('text', $name, $content, $params);
     }
 
+    public static function file($name, $content = null, $params = array())
+    {
+        return new Field('file', $name, $content, $params);
+    }
+
+    public static function password($name, $content = null, $params = array())
+    {
+        return new Field('password', $name, $content, $params);
+    }
+
+
     public static function email($name, $content = null, $params = array())
     {
         return new Field('email', $name, $content, $params);
@@ -349,6 +360,11 @@ class Component implements Renderable {
     public static function radios($name, $choices = array(), $content = null, $params = array())
     {
         return new Choices('radios', $name, $choices, $content, $params);
+    }
+
+    public static function inline_radios($name, $choices = array(), $content = null, $params = array())
+    {
+        return new Choices('inline_radios', $name, $choices, $content, $params);
     }
 
     public static function checkbox($name, $choices = null, $content = null, $params = array())
@@ -529,7 +545,7 @@ class Component implements Renderable {
 
     protected function makeLabel()
     {
-        return $this->getLabel();
+        return $this->getType() == 'container' ? null : $this->getLabel();
     }
 
 
@@ -607,4 +623,7 @@ class Component implements Renderable {
     {
         return (string) $this->render();
     }
+
+
+
 }
