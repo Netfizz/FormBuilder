@@ -2,10 +2,30 @@
 
 use Illuminate\Html\FormBuilder as DefaultFormBuilder;
 use Illuminate\Database\Eloquent\Collection;
+use Config;
 
 class FormBuilder extends DefaultFormBuilder {
 
     protected $formId;
+
+    protected $config = 'form-builder::config';
+
+
+    public function setConfig($config)
+    {
+        $this->config = $config;
+    }
+
+
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    public function getComponentConfigFilename()
+    {
+        return Config::get($this->getConfig() . '.component', array());
+    }
 
     /**
      * Get model instance

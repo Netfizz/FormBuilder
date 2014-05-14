@@ -54,7 +54,7 @@ return array(
     'form' => array(
         'template' => 'form-builder::form',
         'component' => array(
-            'url' => 'admin/posts',
+            //'url' => 'admin/posts',
             'method' => 'put',
             'class' => null,
             'role' => 'form'

@@ -10,6 +10,8 @@ use View, Config, HTML, App, Session, RuntimeException;
 
 class Component implements Renderable {
 
+    protected $builder;
+
     protected $config;
 
     protected $configFile = 'form-builder::component';
@@ -37,20 +39,28 @@ class Component implements Renderable {
 
     public function __construct($type = 'container', $name, $content = null, $params = array())
     {
+        $this->builder = App::make('formizz.builder');
+
         $this->type = $type;
         $this->name = $name;
         $this->content = $content;
         $this->params = (array) $params;
+
+        //$this->setConfig();
+        //$this->setParams();
 
         $this->initConfig();
         $this->initMessagesBags();
         $this->initLabel();
     }
 
+    /*
     public function getConfigKey($key)
     {
+
         return $this->getConfigFile() . '.' . $key;
     }
+
 
     public function getConfigFile()
     {
@@ -62,18 +72,19 @@ class Component implements Renderable {
         $this->configFile = $filename;
         return $this;
     }
+    */
 
 
     protected function initConfig()
     {
+        // Get component config filename
+        $filename = $this->builder->getComponentConfigFilename();
 
         // Get common config
-        $common = Config::get($this->getConfigKey('*'), array());
+        $common = Config::get($filename . '.*', array());
 
         // Get element type config
-        $type = Config::get($this->getConfigKey($this->getType()), array());
-
-        //var_dump(array_merge($common, $type, $params));
+        $type = Config::get($filename . '.' . $this->getType(), array());
 
         // Merge both
         $this->config = array_merge($common, $type, $this->params);
@@ -234,14 +245,14 @@ class Component implements Renderable {
     }
 
 
-    public function getFormService()
+    public function getBuilder()
     {
-        return App::make('formizz');
+        return $this->builder;
     }
 
     public function getModel()
     {
-        return $formService = $this->getFormService()->getModel();
+        return $formService = $this->builder->getModel();
     }
 
     public function required()
@@ -483,7 +494,7 @@ class Component implements Renderable {
 
     public function getPrefixId()
     {
-        return $this->getFormService()->getFormId();
+        return $this->builder->getFormId();
     }
 
 

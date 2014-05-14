@@ -28,12 +28,19 @@ class FormBuilderServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-        $this->app->bindShared('formizz', function($app)
+        $this->app->bindShared('formizz.builder', function($app)
         {
             $form = new FormBuilder($app['html'], $app['url'], $app['session.store']->getToken());
-
             return $form->setSessionStore($app['session.store']);
         });
+
+        /*
+        $this->app->bindShared('formizz', function($app)
+        {
+            //return new Formizz($app['formizz.builder']);
+            return new Component();
+        });
+        */
     }
 
     /**
@@ -43,7 +50,7 @@ class FormBuilderServiceProvider extends ServiceProvider {
 	 */
 	public function provides()
 	{
-		return array('formizz');
+		return array('formizz.builder');
 	}
 
 }

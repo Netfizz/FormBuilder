@@ -19,14 +19,12 @@ class Form extends Component {
     public function __construct($name, $content, $options = array())
     {
         $this->options = $options;
-
         if ($name === null) {
             $name = 'form';
         }
+        parent::__construct('form', $name, $content, $options);
 
         $this->setPrefixId($name);
-
-        parent::__construct('form', $name, $content, $options);
     }
 
 
@@ -37,7 +35,7 @@ class Form extends Component {
 
     public function setPrefixId($prefix)
     {
-        $this->getFormService()->setFormId($prefix);
+        $this->builder->setFormId($prefix);
         return $this;
     }
 
@@ -46,7 +44,7 @@ class Form extends Component {
     {
         $this->model = $model;
 
-        $this->getFormService()->setModel($model);
+        $this->builder->setModel($model);
 
         return $this;
     }

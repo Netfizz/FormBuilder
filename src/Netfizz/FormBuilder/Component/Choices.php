@@ -28,7 +28,7 @@ class Choices extends Field {
     {
         $list = $this->getChoices();
         $type = $this->getType();
-        $value = $this->getFormService()->getValueAttribute($this->getName(), $this->content);
+        $value = $this->builder->getValueAttribute($this->getName(), $this->content);
         $options = $this->attributes();
         $labelAttributes = $this->attributes('label');
 
