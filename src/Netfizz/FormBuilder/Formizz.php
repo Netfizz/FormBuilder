@@ -1,22 +1,31 @@
 <?php namespace Netfizz\FormBuilder;
 
-//use Netfizz\FormBuilder\Foozz;
-use App, View;
+use App, Config;
 
 class Formizz {
 
     protected $form;
 
-    protected $config;
+    protected $model;
 
     protected $builder;
 
     protected $elements = array();
 
+    protected $button;
+
     public function __construct()
     {
         $this->builder = App::make('formizz.builder');
     }
+
+    public function setFramework($framework)
+    {
+        $this->builder->setFramework($framework);
+
+        return $this;
+    }
+
 
     public function getBuilder()
     {
@@ -30,11 +39,10 @@ class Formizz {
         return $this;
     }
 
-
+    /*
     public function setConfig($config)
     {
         $this->builder->setConfig($config);
-
         return $this;
     }
 
@@ -42,6 +50,13 @@ class Formizz {
     public function getConfig()
     {
         return $this->builder->getConfig();
+    }
+    */
+
+    public function bind($model)
+    {
+        $this->model = $model;
+        return $this;
     }
 
 
@@ -70,32 +85,48 @@ class Formizz {
         $this->addElements();
         $this->addButton();
 
+        if ($this->model) {
+            $this->form->bind($this->model);
+        }
+
         return $this->form;
     }
 
 
     public function makeEmbedForm()
     {
-        /*
-        // instanciate form
-        $this->form = Component::form();
-        $this->addElements();
-        $this->addButton();
-
-        return $this->form;
-
-        */
+        // Todo :
     }
 
-    protected function addElements(){
+    protected function addElements()
+    {
         foreach($this->elements as $element)
         {
             $this->form->add($element);
         }
     }
 
-    protected function addButton(){
-        $this->form->add(Component::button('valider'));
+    protected function addButton()
+    {
+        $this->form->add($this->getButton());
+    }
+
+
+    public function setButton($button)
+    {
+        $this->button = $button;
+        return $this;
+    }
+
+
+    public function getButton()
+    {
+        if ( is_null($this->button)) {
+            $label = Config::get('form-builder::button', 'OK');
+            $this->setButton(Component::button($label));
+        }
+
+        return $this->button;
     }
 
 

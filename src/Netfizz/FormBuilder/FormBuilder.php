@@ -1,31 +1,69 @@
 <?php namespace Netfizz\FormBuilder;
 
 use Illuminate\Html\FormBuilder as DefaultFormBuilder;
+use Illuminate\Html\HtmlBuilder;
+use Illuminate\Routing\UrlGenerator;
 use Illuminate\Database\Eloquent\Collection;
-use Config;
+use Config, RuntimeException;
 
 class FormBuilder extends DefaultFormBuilder {
 
     protected $formId;
 
-    protected $config = 'form-builder::config';
+    protected $config;
+
+    /**
+     * @param HtmlBuilder $html
+     * @param UrlGenerator $url
+     * @param string $csrfToken
+     */
+    public function __construct(HtmlBuilder $html, UrlGenerator $url, $csrfToken)
+    {
+        parent::__construct($html, $url, $csrfToken);
+
+        // Define default framework components config
+        $framework = Config::get('form-builder::framework', 'none');
+        $this->setFramework($framework);
+    }
+
+    /**
+     * @param $framework
+     * @return $this
+     * @throws RuntimeException
+     */
+    public function setFramework($framework)
+    {
+        $component = Config::get('form-builder::frameworks.' . $framework, null);
+
+        if ( is_null($component)) {
+            throw new RuntimeException( 'Framework "' . ucfirst($framework) . '" component config file path doesn\'t exist.');
+        }
+
+        $config = Config::get($component, null);
+        if ( is_null($component)) {
+            throw new RuntimeException( 'Framework "' . ucfirst($framework) . '" component config file doesn\'t exist.');
+        }
+
+        $this->setConfig($config);
+    }
 
 
+    /**
+     * @param $config
+     */
     public function setConfig($config)
     {
         $this->config = $config;
     }
 
-
+    /**
+     * @return mixed
+     */
     public function getConfig()
     {
         return $this->config;
     }
 
-    public function getComponentConfigFilename()
-    {
-        return Config::get($this->getConfig() . '.component', array());
-    }
 
     /**
      * Get model instance
@@ -35,6 +73,24 @@ class FormBuilder extends DefaultFormBuilder {
     public function getModel()
     {
         return $this->model;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getFormId()
+    {
+        return $this->formId;
+    }
+
+
+    /**
+     * @param $formId
+     */
+    public function setFormId($formId)
+    {
+        $this->formId = $formId;
     }
 
 
@@ -61,16 +117,5 @@ class FormBuilder extends DefaultFormBuilder {
         {
             return array_get($this->model, $this->transformKey($name));
         }
-    }
-
-
-    public function getFormId()
-    {
-        return $this->formId;
-    }
-
-    public function setFormId($formId)
-    {
-        $this->formId = $formId;
     }
 }

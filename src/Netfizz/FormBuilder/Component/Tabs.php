@@ -60,7 +60,8 @@ class Tabs extends Component {
     }
 
 
-    protected function getDatas() {
+    protected function getDatas()
+    {
         return array_merge(parent::getDatas(), array(
             'id' => $this->getId(),
             'tabs' => $this->makeTabs()

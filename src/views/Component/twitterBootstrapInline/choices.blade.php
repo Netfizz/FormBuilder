@@ -4,7 +4,7 @@
 
     {{ $label }}
 
-    <div>
+    <div class="component-choices">
         {{ $component }}
     </div>
 

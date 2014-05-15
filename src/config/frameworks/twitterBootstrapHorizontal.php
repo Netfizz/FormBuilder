@@ -5,7 +5,7 @@ return array(
     // default params for every element
     '*' => array(
         // Blade template path for rendering component
-        'template' => 'form-builder::component.field',
+        'template' => 'form-builder::component.twitterBootstrapHorizontal.field',
 
 
         // The class to be added to required fields
@@ -165,7 +165,7 @@ return array(
     ),
 
     'button' => array(
-        'template' => 'form-builder::component.button',
+        'template' => 'form-builder::component.twitterBootstrapHorizontal.button',
         'label' => null,
         'component' => array(
             'type' => 'submit',

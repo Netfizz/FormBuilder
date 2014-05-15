@@ -46,37 +46,15 @@ class Component implements Renderable {
         $this->content = $content;
         $this->params = (array) $params;
 
-        //$this->setConfig();
-        //$this->setParams();
-
         $this->initConfig();
         $this->initMessagesBags();
         $this->initLabel();
     }
 
-    /*
-    public function getConfigKey($key)
-    {
-
-        return $this->getConfigFile() . '.' . $key;
-    }
-
-
-    public function getConfigFile()
-    {
-        return $this->configFile;
-    }
-
-    public function setConfigFile($filename)
-    {
-        $this->configFile = $filename;
-        return $this;
-    }
-    */
-
 
     protected function initConfig()
     {
+        /*
         // Get component config filename
         $filename = $this->builder->getComponentConfigFilename();
 
@@ -85,6 +63,21 @@ class Component implements Renderable {
 
         // Get element type config
         $type = Config::get($filename . '.' . $this->getType(), array());
+        */
+
+        // Get component config filename
+        $config = $this->builder->getConfig();
+        //var_dump($config);
+
+
+        // Get common config
+        $common = array_get($config, '*', array());
+
+        // Get element type config
+        $type = array_get($config, $this->getType(), array());
+
+        //var_dump($config, $common, $type, $this->params);
+
 
         // Merge both
         $this->config = array_merge($common, $type, $this->params);
@@ -93,11 +86,6 @@ class Component implements Renderable {
 
     public function getConfig()
     {
-        if ($this->config === null)
-        {
-            $this->initConfig();
-        }
-
         return $this->config;
     }
 
