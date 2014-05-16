@@ -122,10 +122,10 @@ return array(
         ),
     ),
 
+
     'inline_radios' => array(
-        'template' => 'form-builder::component.twitterBootstrapInline.choices',
+        'template' => 'form-builder::component.inline_choices',
         'component' => array(
-            'template' => 'form-builder::component.twitterBootstrapInline.choice',
             'class' => null,
             'label' => array(
                 'class' => 'radio-inline'
@@ -133,6 +133,16 @@ return array(
         ),
     ),
 
+
+    'inline_checkboxes' => array(
+        'template' => 'form-builder::component.inline_choices',
+        'component' => array(
+            'class' => null,
+            'label' => array(
+                'class' => 'checkbox-inline'
+            ),
+        ),
+    ),
 
     'checkbox' => array(
         'wrapper' => array(

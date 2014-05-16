@@ -54,30 +54,14 @@ class Component implements Renderable {
 
     protected function initConfig()
     {
-        /*
-        // Get component config filename
-        $filename = $this->builder->getComponentConfigFilename();
-
-        // Get common config
-        $common = Config::get($filename . '.*', array());
-
-        // Get element type config
-        $type = Config::get($filename . '.' . $this->getType(), array());
-        */
-
         // Get component config filename
         $config = $this->builder->getConfig();
-        //var_dump($config);
-
 
         // Get common config
         $common = array_get($config, '*', array());
 
         // Get element type config
         $type = array_get($config, $this->getType(), array());
-
-        //var_dump($config, $common, $type, $this->params);
-
 
         // Merge both
         $this->config = array_merge($common, $type, $this->params);
@@ -143,57 +127,6 @@ class Component implements Renderable {
         return $array;
     }
 
-    /*
-    protected function getAttributes($element = 'component')
-    {
-        $params = $this->attribute(null, null, $element);
-
-        //var_dump($params);
-
-        foreach($params as $key => $option) {
-            if (is_array($option)) {
-                $params[$key] = implode(' ', $option);
-            }
-        }
-
-        if ($element == 'component' && ! array_key_exists('id', $params))
-        {
-            $params['id'] = $this->getId();
-        }
-
-        $exceptions = array(
-            'label'
-        );
-
-        return array_except($params, $exceptions);
-    }
-    */
-
-    /*
-    protected function getFlattenOptions()
-    {
-        $options = $this->getOptions();
-        foreach($options as &$option) {
-            if (is_array($option)) {
-                $option = implode(' ', $option);
-            }
-        }
-
-        if ( ! array_key_exists('id', $options))
-        {
-            $options['id'] = $this->getId();
-        }
-
-        $exceptions = array(
-            'label'
-        );
-
-
-
-        return array_except($options, $exceptions);
-    }
-    */
-
 
     protected function initMessagesBags()
     {
@@ -243,6 +176,7 @@ class Component implements Renderable {
         return $formService = $this->builder->getModel();
     }
 
+
     public function required()
     {
         $this->config['required'] = true;
@@ -250,32 +184,6 @@ class Component implements Renderable {
 
         return $this;
     }
-
-    /*
-    public function setParent($parent)
-    {
-        $this->parent = $parent;
-    }
-
-    public function getParent()
-    {
-        //return parent::getInstance();
-        return $this->parent;
-    }
-
-
-    public function getInstance()
-    {
-        return $this;
-    }
-    */
-
-    /*
-    public function setModel($model)
-    {
-        $this->model = $model;
-    }
-    */
 
 
     public function get($selector)
@@ -366,6 +274,11 @@ class Component implements Renderable {
         return new Choices('inline_radios', $name, $choices, $content, $params);
     }
 
+    public static function inline_checkboxes($name, $choices = array(), $content = null, $params = array())
+    {
+        return new Choices('inline_checkboxes', $name, $choices, $content, $params);
+    }
+
     public static function checkbox($name, $choices = null, $content = null, $params = array())
     {
         $type = is_string($choices) ? 'checkbox' : 'checkboxes';
@@ -411,7 +324,8 @@ class Component implements Renderable {
             }
             elseif (is_string($element))
             {
-                $elements[$delta] = Component::create($delta, $element);
+                //$elements[$delta] = Component::create($delta, $element);
+                $elements[$delta] = $element;
             }
         }
 

@@ -39,26 +39,12 @@ class Formizz {
         return $this;
     }
 
-    /*
-    public function setConfig($config)
-    {
-        $this->builder->setConfig($config);
-        return $this;
-    }
-
-
-    public function getConfig()
-    {
-        return $this->builder->getConfig();
-    }
-    */
 
     public function bind($model)
     {
         $this->model = $model;
         return $this;
     }
-
 
 
     public function add()
@@ -74,8 +60,6 @@ class Formizz {
 
         return $this;
     }
-
-
 
 
     public function makeForm()
@@ -121,7 +105,7 @@ class Formizz {
 
     public function getButton()
     {
-        if ( is_null($this->button)) {
+        if ( is_null($this->button) ) {
             $label = Config::get('form-builder::button', 'OK');
             $this->setButton(Component::button($label));
         }

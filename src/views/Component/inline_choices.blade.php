@@ -4,13 +4,12 @@
 
     {{ $label }}
 
+    {{ $component }}
+
     <div class="component-choices">
-        {{ $component }}
+        @foreach ($elements as $element)
+            {{ $element }}
+        @endforeach
     </div>
-
-    @foreach ($elements as $element)
-        {{ $element }}
-    @endforeach
-
 
 </div>

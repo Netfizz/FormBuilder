@@ -105,16 +105,19 @@ return array(
         ),
     ),
 
-
+    /*
     'radio' => array(
+        'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
         'wrapper' => array(
             'class' => 'radio'
         ),
         'component' => array(
             'class' => null,
         ),
+
         'label' => array(
-            'class' => 'radio-inline',
+            //'class' => 'radio-inline',
+
             //'foo' => 'bar'
         ),
     ),
@@ -122,6 +125,53 @@ return array(
     'radios' => array(
         'component' => array(
             'class' => null,
+        ),
+    ),
+    */
+
+    'radio' => array(
+        'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
+        'wrapper' => array(
+            'class' => 'radio'
+        ),
+        'component' => array(
+            'class' => null,
+        ),
+        'label' => array(
+            'class' => null,
+        ),
+    ),
+
+    'radios' => array(
+        //'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
+        'component' => array(
+            'template' => 'form-builder::component.twitterBootstrapHorizontal.simple',
+            'class' => null,
+            'label' => array(
+                'class' => null
+            ),
+        ),
+    ),
+
+
+    'inline_radios' => array(
+        'template' => 'form-builder::component.twitterBootstrapHorizontal.inline_choices',
+        'component' => array(
+            'class' => null,
+            'label' => array(
+                'class' => 'radio-inline'
+            ),
+        ),
+    ),
+
+
+    'inline_checkboxes' => array(
+        'template' => 'form-builder::component.twitterBootstrapHorizontal.inline_choices',
+        'component' => array(
+            'class' => null,
+            'label' => array(
+                'class' => 'checkbox-inline'
+            ),
         ),
     ),
 
@@ -140,7 +190,11 @@ return array(
 
     'checkboxes' => array(
         'component' => array(
+            'template' => 'form-builder::component.twitterBootstrapHorizontal.simple',
             'class' => null,
+            'label' => array(
+                'class' => null
+            ),
         ),
     ),
 
@@ -149,6 +203,13 @@ return array(
         'wrapper' => array(
             'class' => 'checkbox'
         ),
+        'component' => array(
+            'class' => null,
+        ),
+    ),
+
+
+    'file' => array(
         'component' => array(
             'class' => null,
         ),

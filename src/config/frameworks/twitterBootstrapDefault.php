@@ -40,7 +40,7 @@ return array(
 
         // Labels attributes
         'label' => array(
-            'class' => 'control-label col-sm-2'
+            'class' => 'control-label'
         ),
 
 
@@ -54,6 +54,7 @@ return array(
     'form' => array(
         'template' => 'form-builder::form',
         'component' => array(
+            //'url' => 'admin/posts',
             'method' => 'put',
             'class' => null,
             'role' => 'form'
@@ -113,15 +114,33 @@ return array(
         'component' => array(
             'class' => null,
         ),
-        'label' => array(
-            'class' => 'radio-inline',
-            //'foo' => 'bar'
-        ),
     ),
 
     'radios' => array(
         'component' => array(
             'class' => null,
+        ),
+    ),
+
+
+    'inline_radios' => array(
+        'template' => 'form-builder::component.inline_choices',
+        'component' => array(
+            'class' => null,
+            'label' => array(
+                'class' => 'radio-inline'
+            ),
+        ),
+    ),
+
+
+    'inline_checkboxes' => array(
+        'template' => 'form-builder::component.inline_choices',
+        'component' => array(
+            'class' => null,
+            'label' => array(
+                'class' => 'checkbox-inline'
+            ),
         ),
     ),
 
@@ -132,9 +151,6 @@ return array(
         ),
         'component' => array(
             'class' => null,
-        ),
-        'label' => array(
-            'class' => 'checkbox-inline',
         ),
     ),
 
@@ -149,6 +165,13 @@ return array(
         'wrapper' => array(
             'class' => 'checkbox'
         ),
+        'component' => array(
+            'class' => null,
+        ),
+    ),
+
+
+    'file' => array(
         'component' => array(
             'class' => null,
         ),
