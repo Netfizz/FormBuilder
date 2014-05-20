@@ -80,6 +80,14 @@ return array(
     ),
 
 
+    'help' => array(
+        'template' => 'form-builder::component.paragraph',
+        'wrapper' => array(
+            'class' => 'help-block'
+        ),
+    ),
+
+
     'textarea' => array(
         'component' => array(
             'class' => 'form-control test2',

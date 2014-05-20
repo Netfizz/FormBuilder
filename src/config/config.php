@@ -4,7 +4,6 @@ return array(
 
     // Set Component config file
     //'component' => 'form-builder::component',
-    //'component' => 'form-builder::frameworks.twitterBootstrapHorizontal',
 
     // Path to frameworks components config files
     'frameworks' => array(

@@ -2,6 +2,8 @@
 
     {{ $message }}
 
+    {{ $prepend }}
+
     {{ $label }}
     {{ $component }}
 
@@ -12,5 +14,7 @@
         @endforeach
     </div>
     @endif
+
+    {{ $append }}
 
 </div>

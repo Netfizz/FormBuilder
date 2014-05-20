@@ -34,7 +34,6 @@ return array(
         // Container attributes
         'wrapper' => array(
             'class' => 'form-group',
-            //'style' => 'border: 1px solid #ccc; padding: 20px; margin: 20px;'
         ),
 
 
@@ -54,7 +53,6 @@ return array(
     'form' => array(
         'template' => 'form-builder::form',
         'component' => array(
-            //'url' => 'admin/posts',
             'method' => 'put',
             'class' => null,
             'role' => 'form'
@@ -83,16 +81,8 @@ return array(
 
 
     'textarea' => array(
-        /*
-        'label' => array(
-            'label' => 'Test BLA BLA',
-            'class' => 'control-label'
-        ),
-        'required' => true,
-        */
         'component' => array(
             'class' => 'form-control test2',
-            //'att' => array('c', 'd'),
             'rows' => 10,
             'columns' => 20,
         ),
@@ -106,24 +96,8 @@ return array(
         ),
     ),
 
-/*
-    'radio' => array(
-        'wrapper' => array(
-            'class' => 'radio'
-        ),
-        'component' => array(
-            'class' => null,
-        ),
-    ),
 
-    'radios' => array(
-        'component' => array(
-            'class' => null,
-        ),
-    ),
-*/
     'radio' => array(
-        //'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
         'wrapper' => array(
             'class' => 'radio'
         ),
@@ -134,13 +108,8 @@ return array(
             'class' => null,
         ),
     ),
-    /*
-    'radios' => array(
-        'component' => array(
-            'template' => 'form-builder::component.field',
-        ),
-    ),
-    */
+
+
     'inline_radios' => array(
         'component' => array(
             'template' => 'form-builder::component.component-only',
@@ -150,27 +119,6 @@ return array(
         ),
     ),
 
-    /*
-    'inline_radios' => array(
-        'template' => 'form-builder::component.inline_choices',
-        'component' => array(
-            'class' => null,
-            'label' => array(
-                'class' => 'radio-inline'
-            ),
-        ),
-    ),
-    */
-
-    'inline_checkboxes' => array(
-        'template' => 'form-builder::component.inline_choices',
-        'component' => array(
-            'class' => null,
-            'label' => array(
-                'class' => 'checkbox-inline'
-            ),
-        ),
-    ),
 
     'checkbox' => array(
         'wrapper' => array(
@@ -179,11 +127,25 @@ return array(
         'component' => array(
             'class' => null,
         ),
+        'label' => array(
+            'class' => null,
+        ),
     ),
+
 
     'checkboxes' => array(
         'component' => array(
-            'class' => null,
+            'template' => 'form-builder::component.field',
+        ),
+    ),
+
+
+    'inline_checkboxes' => array(
+        'component' => array(
+            'template' => 'form-builder::component.component-only',
+            'label' => array(
+                'class' => 'checkbox-inline'
+            ),
         ),
     ),
 
@@ -193,6 +155,9 @@ return array(
             'class' => 'checkbox'
         ),
         'component' => array(
+            'class' => null,
+        ),
+        'label' => array(
             'class' => null,
         ),
     ),
@@ -205,17 +170,15 @@ return array(
     ),
 
 
-
     'submit' => array(
-        //'template' => 'form-builder::component.button',
         'label' => null,
         'component' => array(
             'class' => 'btn btn-primary'
         )
     ),
 
+
     'button' => array(
-        //'template' => 'form-builder::component.button',
         'label' => null,
         'component' => array(
             'type' => 'submit',

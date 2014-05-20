@@ -30,6 +30,10 @@ class Component implements Renderable {
 
     protected $elements = array();
 
+    protected $prepends = array();
+
+    protected $appends = array();
+
     protected $template;
 
     protected $attributes;
@@ -481,11 +485,39 @@ class Component implements Renderable {
         return $this->elements;
     }
 
-    public function makeElements()
+    protected function makeElements()
     {
         return $this->getElements();
     }
 
+
+    protected function makePrepend()
+    {
+        return implode(PHP_EOL, $this->prepends);
+    }
+
+    protected function makeAppend()
+    {
+        return implode(PHP_EOL, $this->appends);
+    }
+
+    public function prepend($element)
+    {
+        $this->prepends[] = $element;
+        return $this;
+    }
+
+    public function append($element)
+    {
+        $this->appends[] = $element;
+        return $this;
+    }
+
+    public function help($text)
+    {
+        $this->append(new self('help', 'help', $text));
+        return $this;
+    }
 
     public function addClass($class, $element = 'wrapper')
     {
@@ -515,6 +547,8 @@ class Component implements Renderable {
             'label'         => $this->makeLabel(),
             'attributes'    => $this->makeWrapperAttributes(),
             'elements'      => $this->makeElements(),
+            'prepend'       => $this->makePrepend(),
+            'append'        => $this->makeAppend(),
         );
     }
 
