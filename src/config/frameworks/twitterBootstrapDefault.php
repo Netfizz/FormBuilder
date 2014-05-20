@@ -114,26 +114,21 @@ return array(
         'component' => array(
             'class' => null,
         ),
-    ),
-
-    'radios' => array(
-        'component' => array(
+        'label' => array(
             'class' => null,
         ),
     ),
 
-
     'inline_radios' => array(
-        'template' => 'form-builder::component.inline_choices',
         'component' => array(
-            'class' => null,
+            'template' => 'form-builder::component.component-only',
             'label' => array(
                 'class' => 'radio-inline'
             ),
         ),
     ),
 
-
+    /*
     'inline_checkboxes' => array(
         'template' => 'form-builder::component.inline_choices',
         'component' => array(
@@ -169,6 +164,50 @@ return array(
             'class' => null,
         ),
     ),
+    */
+
+    'checkbox' => array(
+        //'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
+        'wrapper' => array(
+            'class' => 'checkbox'
+        ),
+        'component' => array(
+            'class' => null,
+        ),
+        'label' => array(
+            'class' => null, //'checkbox-inline',
+        ),
+    ),
+
+    'checkboxes' => array(
+        'component' => array(
+            'template' => 'form-builder::component.field',
+        ),
+    ),
+
+    'inline_checkboxes' => array(
+        'component' => array(
+            'template' => 'form-builder::component.component-only',
+            'label' => array(
+                'class' => 'checkbox-inline'
+            ),
+        ),
+    ),
+
+
+
+    'boolean' => array(
+        //'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
+        'wrapper' => array(
+            'class' => 'checkbox'
+        ),
+        'component' => array(
+            'class' => null,
+        ),
+        'label' => array(
+            'class' => null, //'checkbox-inline',
+        ),
+    ),
 
 
     'file' => array(
@@ -180,7 +219,7 @@ return array(
 
 
     'submit' => array(
-        'template' => 'form-builder::component.button',
+        //'template' => 'form-builder::component.button',
         'label' => null,
         'component' => array(
             'class' => 'btn btn-primary'
@@ -188,7 +227,7 @@ return array(
     ),
 
     'button' => array(
-        'template' => 'form-builder::component.button',
+        //'template' => 'form-builder::component.button',
         'label' => null,
         'component' => array(
             'type' => 'submit',

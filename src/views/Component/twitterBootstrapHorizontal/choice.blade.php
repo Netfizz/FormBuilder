@@ -11,8 +11,12 @@
         </div>
     </div>
 
-    @foreach ($elements as $element)
+    @if (count($elements) > 0)
+    <div class="col-sm-10">
+        @foreach ($elements as $element)
         {{ $element }}
-    @endforeach
+        @endforeach
+    </div>
+    @endif
 
 </div>

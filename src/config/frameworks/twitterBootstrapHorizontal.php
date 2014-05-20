@@ -105,30 +105,6 @@ return array(
         ),
     ),
 
-    /*
-    'radio' => array(
-        'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
-        'wrapper' => array(
-            'class' => 'radio'
-        ),
-        'component' => array(
-            'class' => null,
-        ),
-
-        'label' => array(
-            //'class' => 'radio-inline',
-
-            //'foo' => 'bar'
-        ),
-    ),
-
-    'radios' => array(
-        'component' => array(
-            'class' => null,
-        ),
-    ),
-    */
-
     'radio' => array(
         'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
         'wrapper' => array(
@@ -143,21 +119,14 @@ return array(
     ),
 
     'radios' => array(
-        //'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
         'component' => array(
-            'template' => 'form-builder::component.twitterBootstrapHorizontal.simple',
-            'class' => null,
-            'label' => array(
-                'class' => null
-            ),
+            'template' => 'form-builder::component.field',
         ),
     ),
-
 
     'inline_radios' => array(
-        'template' => 'form-builder::component.twitterBootstrapHorizontal.inline_choices',
         'component' => array(
-            'class' => null,
+            'template' => 'form-builder::component.component-only',
             'label' => array(
                 'class' => 'radio-inline'
             ),
@@ -165,18 +134,9 @@ return array(
     ),
 
 
-    'inline_checkboxes' => array(
-        'template' => 'form-builder::component.twitterBootstrapHorizontal.inline_choices',
-        'component' => array(
-            'class' => null,
-            'label' => array(
-                'class' => 'checkbox-inline'
-            ),
-        ),
-    ),
-
 
     'checkbox' => array(
+        'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
         'wrapper' => array(
             'class' => 'checkbox'
         ),
@@ -184,29 +144,40 @@ return array(
             'class' => null,
         ),
         'label' => array(
-            'class' => 'checkbox-inline',
+            'class' => null, //'checkbox-inline',
         ),
     ),
 
     'checkboxes' => array(
         'component' => array(
-            'template' => 'form-builder::component.twitterBootstrapHorizontal.simple',
-            'class' => null,
+            'template' => 'form-builder::component.field',
+        ),
+    ),
+
+    'inline_checkboxes' => array(
+        'component' => array(
+            'template' => 'form-builder::component.component-only',
             'label' => array(
-                'class' => null
+                'class' => 'checkbox-inline'
             ),
         ),
     ),
 
 
+
     'boolean' => array(
+        'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
         'wrapper' => array(
             'class' => 'checkbox'
         ),
         'component' => array(
             'class' => null,
         ),
+        'label' => array(
+            'class' => null, //'checkbox-inline',
+        ),
     ),
+
 
 
     'file' => array(

@@ -259,7 +259,7 @@ class Component implements Renderable {
 
     public static function radio($name, $choices = null, $content = null, $params = array())
     {
-        $type = is_string($choices) ? 'radio' : 'radios';
+        $type = is_array($choices) ? 'radios' : 'radio';
 
         return new Choices($type, $name, $choices, $content, $params);
     }
@@ -281,7 +281,7 @@ class Component implements Renderable {
 
     public static function checkbox($name, $choices = null, $content = null, $params = array())
     {
-        $type = is_string($choices) ? 'checkbox' : 'checkboxes';
+        $type = is_array($choices) ? 'checkboxes' : 'checkbox';
 
         return new Choices($type, $name, $choices, $content, $params);
     }

@@ -5,8 +5,12 @@
     {{ $label }}
     {{ $component }}
 
-    @foreach ($elements as $element)
+    @if (count($elements) > 0)
+    <div class="component-childs">
+        @foreach ($elements as $element)
         {{ $element }}
-    @endforeach
+        @endforeach
+    </div>
+    @endif
 
 </div>

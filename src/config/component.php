@@ -106,7 +106,7 @@ return array(
         ),
     ),
 
-
+/*
     'radio' => array(
         'wrapper' => array(
             'class' => 'radio'
@@ -121,8 +121,36 @@ return array(
             'class' => null,
         ),
     ),
+*/
+    'radio' => array(
+        //'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
+        'wrapper' => array(
+            'class' => 'radio'
+        ),
+        'component' => array(
+            'class' => null,
+        ),
+        'label' => array(
+            'class' => null,
+        ),
+    ),
+    /*
+    'radios' => array(
+        'component' => array(
+            'template' => 'form-builder::component.field',
+        ),
+    ),
+    */
+    'inline_radios' => array(
+        'component' => array(
+            'template' => 'form-builder::component.component-only',
+            'label' => array(
+                'class' => 'radio-inline'
+            ),
+        ),
+    ),
 
-
+    /*
     'inline_radios' => array(
         'template' => 'form-builder::component.inline_choices',
         'component' => array(
@@ -132,7 +160,7 @@ return array(
             ),
         ),
     ),
-
+    */
 
     'inline_checkboxes' => array(
         'template' => 'form-builder::component.inline_choices',
@@ -179,7 +207,7 @@ return array(
 
 
     'submit' => array(
-        'template' => 'form-builder::component.button',
+        //'template' => 'form-builder::component.button',
         'label' => null,
         'component' => array(
             'class' => 'btn btn-primary'
@@ -187,7 +215,7 @@ return array(
     ),
 
     'button' => array(
-        'template' => 'form-builder::component.button',
+        //'template' => 'form-builder::component.button',
         'label' => null,
         'component' => array(
             'type' => 'submit',

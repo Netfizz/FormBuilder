@@ -26,7 +26,6 @@ class Choices extends Field {
 
     protected function makeContent()
     {
-        $content = null;
         $list = $this->getChoices();
         $type = $this->getType();
         $value = $this->builder->getValueAttribute($this->getName(), $this->content);
@@ -47,7 +46,7 @@ class Choices extends Field {
 
                 $content = FormBuilder::select($this->getName(), $list, $value, $options);
                 break;
-
+            /*
             case 'radio' :
             case 'checkbox' :
                 $content = sprintf('<label%s>%s %s</label>',
@@ -57,12 +56,21 @@ class Choices extends Field {
 
                 $this->removeLabel();
                 break;
-
+            */
+            case 'radio' :
+            case 'checkbox' :
             case 'boolean' :
-                $content[] = FormBuilder::hidden($this->getName(), 0);
+
+                $methodType = $type === 'radio' ? 'radio' : 'checkbox';
+
+                if ($type === 'boolean')
+                {
+                    $content[] = FormBuilder::hidden($this->getName(), 0);
+                }
+
                 $content[] = sprintf('<label%s>%s %s</label>',
                     HTML::attributes($this->array_flatten($labelAttributes)),
-                    FormBuilder::checkbox($this->getName(), $list, $value, $options),
+                    FormBuilder::$methodType($this->getName(), $list, $value, $options),
                     $this->getLabel());
 
                 $this->removeLabel();
@@ -72,7 +80,9 @@ class Choices extends Field {
             case 'checkboxes' :
             case 'inline_radios' :
             case 'inline_checkboxes' :
-                $labelAttributes = $this->attributes('component.label');
+                $content = null;
+
+                //$labelAttributes = $this->attributes('component.label');
                 $methodType = str_contains($type, 'radio') ? 'radio' : 'checkbox';
 
                 if ($methodType === 'checkbox') $this->setHasMany();
@@ -81,35 +91,13 @@ class Choices extends Field {
                 {
                     $checked = $value == $val ? true : false;
                     $options['id'] = $this->getId() . ucfirst(camel_case($val));
-                    unset($options['label']);
-
-                    /*
-                    $field = sprintf('<label%s>%s %s</label>',
-                        HTML::attributes($this->array_flatten($labelAttributes)),
-                        FormBuilder::$methodType($this->getName(), $val, $checked, $options),
-                        $label);
-                    */
+                    //unset($options['label']);
 
                     $field = Component::$methodType($this->getName(), $val, $checked, $options)->setLabel($label);
 
                     $this->add($field);
                 }
                 break;
-            /*
-            case 'xxradios' :
-            case 'xxcheckboxes' :
-                $methodType = $type === 'radios' ? 'radio' : 'checkbox';
-                if ($type === 'checkboxes') $this->setHasMany();
-
-                foreach((array) $list as $val => $label)
-                {
-                    $checked = $value == $val ? true : false;
-                    $options['component']['id'] = $this->getId() . ucfirst(camel_case($val));
-
-                    $content[] = Component::$methodType($this->getName(), $val, $checked, $options)->setLabel($label);
-                }
-                break;
-            */
 
             default:
                 $content = null;
