@@ -34,7 +34,6 @@ return array(
         // Container attributes
         'wrapper' => array(
             'class' => 'form-group',
-            //'style' => 'border: 1px solid #ccc; padding: 20px; margin: 20px;'
         ),
 
 
@@ -82,16 +81,8 @@ return array(
 
 
     'textarea' => array(
-        /*
-        'label' => array(
-            'label' => 'Test BLA BLA',
-            'class' => 'control-label'
-        ),
-        'required' => true,
-        */
         'component' => array(
             'class' => 'form-control test2',
-            //'att' => array('c', 'd'),
             'rows' => 10,
             'columns' => 20,
         ),
@@ -104,6 +95,7 @@ return array(
             'class' => 'test',
         ),
     ),
+
 
     'radio' => array(
         'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
@@ -134,7 +126,6 @@ return array(
     ),
 
 
-
     'checkbox' => array(
         'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
         'wrapper' => array(
@@ -144,15 +135,17 @@ return array(
             'class' => null,
         ),
         'label' => array(
-            'class' => null, //'checkbox-inline',
+            'class' => null,
         ),
     ),
+
 
     'checkboxes' => array(
         'component' => array(
             'template' => 'form-builder::component.field',
         ),
     ),
+
 
     'inline_checkboxes' => array(
         'component' => array(
@@ -164,7 +157,6 @@ return array(
     ),
 
 
-
     'boolean' => array(
         'template' => 'form-builder::component.twitterBootstrapHorizontal.choice',
         'wrapper' => array(
@@ -174,10 +166,9 @@ return array(
             'class' => null,
         ),
         'label' => array(
-            'class' => null, //'checkbox-inline',
+            'class' => null,
         ),
     ),
-
 
 
     'file' => array(
@@ -187,7 +178,6 @@ return array(
     ),
 
 
-
     'submit' => array(
         'template' => 'form-builder::component.button',
         'label' => null,
@@ -195,6 +185,7 @@ return array(
             'class' => 'btn btn-primary'
         )
     ),
+
 
     'button' => array(
         'template' => 'form-builder::component.twitterBootstrapHorizontal.button',
