@@ -46,21 +46,10 @@ class Choices extends Field {
 
                 $content = FormBuilder::select($this->getName(), $list, $value, $options);
                 break;
-            /*
-            case 'radio' :
-            case 'checkbox' :
-                $content = sprintf('<label%s>%s %s</label>',
-                    HTML::attributes($this->array_flatten($labelAttributes)),
-                    FormBuilder::$type($this->getName(), $list, $value, $options),
-                    $this->getLabel());
 
-                $this->removeLabel();
-                break;
-            */
             case 'radio' :
             case 'checkbox' :
             case 'boolean' :
-
                 $methodType = $type === 'radio' ? 'radio' : 'checkbox';
 
                 if ($type === 'boolean')
@@ -81,8 +70,6 @@ class Choices extends Field {
             case 'inline_radios' :
             case 'inline_checkboxes' :
                 $content = null;
-
-                //$labelAttributes = $this->attributes('component.label');
                 $methodType = str_contains($type, 'radio') ? 'radio' : 'checkbox';
 
                 if ($methodType === 'checkbox') $this->setHasMany();
@@ -91,7 +78,6 @@ class Choices extends Field {
                 {
                     $checked = $value == $val ? true : false;
                     $options['id'] = $this->getId() . ucfirst(camel_case($val));
-                    //unset($options['label']);
 
                     $field = Component::$methodType($this->getName(), $val, $checked, $options)->setLabel($label);
 

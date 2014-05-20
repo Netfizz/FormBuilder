@@ -19,6 +19,23 @@ class Field extends Component {
             $options['id'] = $this->getId();
         }
 
+        if ( array_key_exists('placeholder', $options))
+        {
+            //$options['id'] = $this->getId();
+
+            if ($options['placeholder'] === false)
+            {
+                unset($options['placeholder']);
+            }
+            else if ($options['placeholder'] === true)
+            {
+                $options['placeholder'] = $this->getLabel();
+            }
+
+        }
+
+
+
         switch ($type) {
             case 'text' :
             case 'password' :

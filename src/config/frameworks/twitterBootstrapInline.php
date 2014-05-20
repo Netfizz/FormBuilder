@@ -46,6 +46,7 @@ return array(
         // Component attributes (Field input, etc.)
         'component' => array(
             'class' => 'form-control',
+            'placeholder' => true
         )
     ),
 
