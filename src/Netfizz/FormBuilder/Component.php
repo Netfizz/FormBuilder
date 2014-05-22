@@ -5,8 +5,9 @@ use Netfizz\FormBuilder\Component\Form;
 use Netfizz\FormBuilder\Component\Field;
 use Netfizz\FormBuilder\Component\Choices;
 use Netfizz\FormBuilder\Component\Tabs;
+use Netfizz\FormBuilder\Component\Collection;
 use Illuminate\Support\MessageBag;
-use View, Config, HTML, App, Session, RuntimeException;
+use View, Config, HTML, Str, App, Session, RuntimeException;
 
 class Component implements Renderable {
 
@@ -40,6 +41,9 @@ class Component implements Renderable {
 
     protected $messages;
 
+    protected $embed;
+
+    protected $delta = 0;
 
     public function __construct($type = 'container', $name, $content = null, $params = array())
     {
@@ -55,6 +59,16 @@ class Component implements Renderable {
         $this->initLabel();
     }
 
+    public function __clone()
+    {
+        foreach ($this->elements as $delta => $element)
+        {
+            if (is_object($element) || (is_array($element))) {
+                $this->elements[$delta] =  clone $element;
+            }
+        }
+
+    }
 
     protected function initConfig()
     {
@@ -132,6 +146,44 @@ class Component implements Renderable {
     }
 
 
+    public function embed($name = null, $delta = 0)
+    {
+        if ($name === null)
+        {
+            return $this->embed;
+        }
+
+        $this->embed = $name;
+        $this->delta = $delta;
+
+        return $this;
+    }
+
+
+    public function isEmbed()
+    {
+        return $this->embed() ? true : false;
+    }
+
+    /*
+    public function embedElements($embed = null)
+    {
+        var_dump('embedElements');
+
+        if ($embed === null)
+        {
+            $embed = $this->embed;
+        }
+
+
+        foreach($this->getElements() as $element) {
+            $element->embed($embed);
+
+            var_dump($element);
+        }
+    }
+    */
+
     protected function initMessagesBags()
     {
         $states = array_get($this->config, 'messages', array());
@@ -199,7 +251,7 @@ class Component implements Renderable {
         return $element;
     }
 
-    public static function create($name, $content = null, $params = array())
+    public static function create($name = null, $content = null, $params = array())
     {
         return new self('container', $name, $content, $params);
     }
@@ -257,8 +309,8 @@ class Component implements Renderable {
 
     public static function multiselect($name, $choices = array(), $content = null, $params = array())
     {
-        $params = array_merge($params, array('multiple' => 'multiple'));
-        return new Choices('select', $name, $choices, $content, $params);
+        $input = new Choices('select', $name, $choices, $content, $params);
+        return $input->attribute('multiple', 'multiple');
     }
 
     public static function radio($name, $choices = null, $content = null, $params = array())
@@ -298,6 +350,11 @@ class Component implements Renderable {
     public static function boolean($name, $choices = null, $content = null, $params = array())
     {
         return new Choices('boolean', $name, $choices, $content, $params);
+    }
+
+    public static function collection($name, $content = null, $params = array())
+    {
+        return new Collection('collection', $name, $content, $params);
     }
 
     public static function submit($name, $content = null, $params = array())
@@ -366,6 +423,12 @@ class Component implements Renderable {
 
     public function getName()
     {
+        if ( $embed = $this->embed() )
+        {
+            //return sprintf($embed.'[%s][%s]', $this->delta, $this->name);
+            return sprintf($embed.'[%s][%s]', $this->delta, $this->name);
+        }
+
         return $this->name;
     }
 
@@ -400,7 +463,22 @@ class Component implements Renderable {
 
     public function getPrefixId()
     {
-        return $this->builder->getFormId();
+        $prefix = $this->builder->getFormId();
+
+        if ($embed = $this->embed()) {
+            $prefix .= $this->transformKey($embed) . $this->delta;
+        }
+
+        return $prefix;
+    }
+
+
+    protected function transformKey($key)
+    {
+        $key = preg_replace("/[^A-Za-z0-9]/", '_', $key);
+        $key = Str::slug($key, '_');
+
+        return studly_case($key);
     }
 
 

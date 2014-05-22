@@ -10,7 +10,7 @@ class Field extends Component {
     protected function makeContent()
     {
         $type = $this->type;
-        $name = $this->name;
+        $name = $this->getName();
         $value = $this->content;
         $options = $this->attributes();
 
@@ -21,8 +21,6 @@ class Field extends Component {
 
         if ( array_key_exists('placeholder', $options))
         {
-            //$options['id'] = $this->getId();
-
             if ($options['placeholder'] === false)
             {
                 unset($options['placeholder']);
@@ -31,10 +29,7 @@ class Field extends Component {
             {
                 $options['placeholder'] = $this->getLabel();
             }
-
         }
-
-
 
         switch ($type) {
             case 'text' :

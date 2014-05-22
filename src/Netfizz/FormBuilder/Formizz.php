@@ -1,8 +1,9 @@
 <?php namespace Netfizz\FormBuilder;
 
+use Illuminate\Support\Contracts\RenderableInterface as Renderable;
 use App, Config;
 
-class Formizz {
+class Formizz implements Renderable {
 
     protected $form;
 
@@ -14,16 +15,75 @@ class Formizz {
 
     protected $button;
 
+    protected $embed;
+
+    protected $delta = 0;
+
     public function __construct()
     {
         $this->builder = App::make('formizz.builder');
     }
 
+
+    public function __clone()
+    {
+        foreach ($this->elements as $delta => $element)
+        {
+            if (is_object($element) || (is_array($element))) {
+                $this->elements[$delta] =  clone $element;
+            }
+        }
+
+    }
+
+
+    public function getId() {
+        return null;
+    }
+
     public function setFramework($framework)
     {
         $this->builder->setFramework($framework);
+        return $this;
+    }
+
+    public function embed($name = null, $delta = 0)
+    {
+
+        if ($name === null)
+        {
+            return $this->embed;
+        }
+
+        $this->embed = $name;
+        $this->delta = $delta;
+
+        $this->embedElements();
+
 
         return $this;
+    }
+
+
+    public function embedElements($embed = null)
+    {
+        if ($embed === null)
+        {
+            $embed = $this->embed;
+        }
+
+        foreach($this->elements as $element) {
+            if ( method_exists($element, 'embed') )
+            {
+                $element->embed($embed, $this->delta);
+            }
+        }
+    }
+
+
+    public function isEmbed()
+    {
+        return $this->embed() ? true : false;
     }
 
 
@@ -80,6 +140,11 @@ class Formizz {
     public function makeEmbedForm()
     {
         // Todo :
+        // instanciate form
+        $this->form = Component::create();
+        $this->addElements();
+
+        return $this->form;
     }
 
     protected function addElements()
@@ -116,7 +181,9 @@ class Formizz {
 
     public function render()
     {
-        return $this->makeForm()->render();
+        return $this->isEmbed() ?
+            $this->makeEmbedForm()->render() :
+            $this->makeForm()->render() ;
     }
 
 

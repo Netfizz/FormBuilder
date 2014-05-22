@@ -80,6 +80,23 @@ return array(
     ),
 
 
+    'help' => array(
+        'template' => 'form-builder::component.paragraph',
+        'wrapper' => array(
+            'class' => 'help-block'
+        ),
+    ),
+
+
+    'collection' => array(
+        'template' => 'form-builder::component.collection',
+        'max_element' => 0, // 0 = unlimited
+        'allow_add' => true,
+        'allow_delete' => true,
+        'allow_sorting' => true,
+    ),
+
+
     'textarea' => array(
         'component' => array(
             'class' => 'form-control test2',

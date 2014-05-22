@@ -111,9 +111,9 @@ class Choices extends Field {
 
     public function getName()
     {
-        $name = $this->name;
+        $name = parent::getName();
 
-        if ( $this->hasMany() )
+        if ( $this->hasMany() && ! ends_with($name, '[]') )
         {
             $name .= '[]';
         }
@@ -190,7 +190,14 @@ class Choices extends Field {
     protected function getRelatedChoices($relationObj)
     {
         $relatedModel = $relationObj->getRelated();
+        $relationType = class_basename(get_class($relationObj));
 
+        if ($relationType === 'BelongsTo' && $relationObj->getForeignKey() != $this->name)
+        {
+            $this->setName($relationObj->getForeignKey());
+        }
+
+        /*
         $relationType = class_basename(get_class($relationObj));
 
         $multipleRelationTypes = array(
@@ -201,7 +208,7 @@ class Choices extends Field {
         if (in_array($relationType, $multipleRelationTypes)) {
             //$this->setHasManyValues();
         }
-
+        */
 
         return $this->collectionToArray($relatedModel::all());
         //var_dump($relatedModel::all());

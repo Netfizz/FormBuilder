@@ -34,13 +34,6 @@ class FormBuilderServiceProvider extends ServiceProvider {
             return $form->setSessionStore($app['session.store']);
         });
 
-        /*
-        $this->app->bindShared('formizz', function($app)
-        {
-            //return new Formizz($app['formizz.builder']);
-            return new Component();
-        });
-        */
     }
 
     /**
