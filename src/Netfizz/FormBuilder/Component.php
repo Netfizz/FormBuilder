@@ -155,6 +155,11 @@ class Component implements Renderable {
 
         $this->embed = $name;
         $this->delta = $delta;
+        var_dump($this->type);
+        if ($this->type == 'container') {
+            var_dump($this->type);
+            $this->attribute('id', $this->getId(), 'wrapper');
+        }
 
         return $this;
     }

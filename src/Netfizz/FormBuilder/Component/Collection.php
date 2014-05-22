@@ -1,10 +1,11 @@
 <?php namespace Netfizz\FormBuilder\Component;
 
 use Netfizz\FormBuilder\Component;
-use RuntimeException;
+use HTML, stdClass, RuntimeException;
 
 class Collection extends Component {
 
+    protected $prototype;
 
     protected function makeContent()
     {
@@ -12,14 +13,49 @@ class Collection extends Component {
             throw new RuntimeException('Collection is not a Formizz object');
         };
 
-        $max = $this->getMaxElements();
-        for ($i = 1; $i <= $max; $i++)
+        if ($max = $this->getMaxElements())
         {
-            $embedForm = clone $this->content->embed($this->getName(), $i);
+            for ($i = 0; $i < $max; $i++)
+            {
+                $embedForm = clone $this->content->embed($this->getName(), $i);
+                $this->add($embedForm);
+            }
+        }
+        else
+        {
+            $embedForm = clone $this->content->embed($this->getName());
             $this->add($embedForm);
         }
 
+        if ($this->allowAdd())
+        {
+            $prototype = clone $this->content->embed($this->getName(), '__DELTA__');
+            $this->setPrototype((string) $prototype);
+        }
+
+        //var_dump($this->config);
+
         return null;
+    }
+
+    public function allowAdd()
+    {
+        return array_get($this->config, 'allow_add', false);
+    }
+
+    public function setPrototype($prototype)
+    {
+        $this->prototype = $prototype;
+
+        return $this;
+    }
+
+    protected function makeCollection()
+    {
+        $collection = new stdClass;
+        $collection->prototype = HTML::attributes(array('data-prototype' => $this->prototype));
+
+        return $collection;
     }
 
 
@@ -33,4 +69,11 @@ class Collection extends Component {
         return (int) $this->config['max_element'];
     }
 
+    protected function getDatas()
+    {
+        return array_merge(parent::getDatas(), array(
+            'id' => $this->getId(),
+            'collection' => $this->makeCollection()
+        ));
+    }
 } 

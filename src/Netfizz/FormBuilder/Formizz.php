@@ -129,7 +129,8 @@ class Formizz implements Renderable {
         $this->addElements();
         $this->addButton();
 
-        if ($this->model) {
+        if ($this->model)
+        {
             $this->form->bind($this->model);
         }
 
