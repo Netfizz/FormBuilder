@@ -13,9 +13,9 @@ class Collection extends Component {
             throw new RuntimeException('Collection is not a Formizz object');
         };
 
-        if ($max = $this->getMaxElements())
+        if ($min = $this->getMinElements())
         {
-            for ($i = 0; $i < $max; $i++)
+            for ($i = 0; $i < $min; $i++)
             {
                 $embedForm = clone $this->content->embed($this->getName(), $i);
                 $this->add($embedForm);
@@ -43,6 +43,16 @@ class Collection extends Component {
         return array_get($this->config, 'allow_add', false);
     }
 
+    public function allowDelete()
+    {
+        return array_get($this->config, 'allow_delete', false);
+    }
+
+    public function allowSorting()
+    {
+        return array_get($this->config, 'allow_sorting', false);
+    }
+
     public function setPrototype($prototype)
     {
         $this->prototype = $prototype;
@@ -53,7 +63,14 @@ class Collection extends Component {
     protected function makeCollection()
     {
         $collection = new stdClass;
+
         $collection->prototype = HTML::attributes(array('data-prototype' => $this->prototype));
+        $collection->add = $this->allowAdd();
+        $collection->delete = $this->allowDelete();
+        $collection->sorting = $this->allowSorting();
+        $collection->min = $this->getMinElements();
+        $collection->max = $this->getMaxElements();
+
 
         return $collection;
     }
@@ -61,12 +78,12 @@ class Collection extends Component {
 
     public function getMaxElements()
     {
-        if ( ! is_numeric($this->config['max_element']) )
-        {
-            throw new RuntimeException('Max Element params must be a integer');
-        }
+        return (int) array_get($this->config, 'max_element', 0);
+    }
 
-        return (int) $this->config['max_element'];
+    public function getMinElements()
+    {
+        return (int) array_get($this->config, 'min_element', 1);
     }
 
     protected function getDatas()

@@ -68,6 +68,8 @@ class Component implements Renderable {
             }
         }
 
+        $this->attribute('id', $this->getId(), 'wrapper');
+
     }
 
     protected function initConfig()

@@ -11,15 +11,22 @@
     {{ $message }}
 
     <!-- subforms collection -->
-    <ul class="collection-component"{{ $collection->prototype }}>
+    <ol class="collection-component"{{ $collection->prototype }}>
         @foreach ($elements as $element)
             <li>
                 {{ $element }}
+
+                @if ($collection->delete)
+                <!-- <a href="#" class="collection-remove-row"><span class="glyphicon glyphicon-remove"></span> Remove</a> -->
+                @endif
+
             </li>
         @endforeach
-    </ul>
+    </ol>
 
-    <a href="#" class="collection-add-row">Add another element</a>
+    @if ($collection->add)
+    <a href="#" class="collection-add-row"><span class="glyphicon glyphicon-plus"></span> Add another element</a>
+    @endif
 
     {{ $append }}
 
@@ -28,21 +35,33 @@
 
         jQuery(document).ready(function() {
 
-            var delta = jQuery('#{{ $id }} .collection-component').length;
+            var collection = jQuery('#{{ $id }} .collection-component');
+            var delta = jQuery('li', collection).length;
 
             jQuery('#{{ $id }} .collection-add-row').click(function() {
-                // parcourt le template prototype
-                var newWidget = jQuery('#{{ $id }} .collection-component').attr('data-prototype');
+
+                @if ($collection->max)
+                // Check max element
+                if (delta >= {{ $collection->max }})
+                {
+                    return false;
+                }
+                @endif
+
+                // Prototype
+                var newWidget = collection.attr('data-prototype');
                 newWidget = newWidget.replace(/__DELTA__/g, delta);
                 delta++;
 
-                // créer une nouvelle liste d'éléments et l'ajoute à notre liste
+                // Add new row
                 var newLi = jQuery('<li></li>').html(newWidget);
-                newLi.appendTo(jQuery('#{{ $id }} .collection-component'));
+                newLi.appendTo(collection);
 
-                console.log(delta);
                 return false;
             });
+
+
+
         })
     </script>
 

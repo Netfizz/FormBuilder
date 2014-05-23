@@ -90,6 +90,7 @@ return array(
 
     'collection' => array(
         'template' => 'form-builder::component.collection',
+        'min_element' => 1,
         'max_element' => 0, // 0 = unlimited
         'allow_add' => true,
         'allow_delete' => true,
