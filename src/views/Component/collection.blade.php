@@ -11,21 +11,16 @@
     {{ $message }}
 
     <!-- subforms collection -->
-    <ol class="collection-component"{{ $collection->prototype }}>
+    <ul class="collection-component"{{ $collection->prototype }}>
         @foreach ($elements as $element)
             <li>
                 {{ $element }}
-
-                @if ($collection->delete)
-                <!-- <a href="#" class="collection-remove-row"><span class="glyphicon glyphicon-remove"></span> Remove</a> -->
-                @endif
-
             </li>
         @endforeach
-    </ol>
+    </ul>
 
     @if ($collection->add)
-    <a href="#" class="collection-add-row"><span class="glyphicon glyphicon-plus"></span> Add another element</a>
+    <a href="#" class="collection-add-row">{{ $collection->add }}</a>
     @endif
 
     {{ $append }}
@@ -42,8 +37,7 @@
 
                 @if ($collection->max)
                 // Check max element
-                if (delta >= {{ $collection->max }})
-                {
+                if (delta >= {{ $collection->max }}) {
                     return false;
                 }
                 @endif
@@ -57,6 +51,13 @@
                 var newLi = jQuery('<li></li>').html(newWidget);
                 newLi.appendTo(collection);
 
+                return false;
+            });
+
+            jQuery(document).on('click', '#{{ $id }} .collection-delete-row' , function() {
+                jQuery( this ).parents('li').remove();
+
+                console.log(jQuery( this ));
                 return false;
             });
 

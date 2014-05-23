@@ -90,11 +90,11 @@ return array(
 
     'collection' => array(
         'template' => 'form-builder::component.collection',
-        'min_element' => 1,
-        'max_element' => 0, // 0 = unlimited
-        'allow_add' => true,
-        'allow_delete' => true,
-        'allow_sorting' => true,
+        'element_min' => 1,
+        'element_max' => 0, // 0 = unlimited
+        'element_add' => '<span class="glyphicon glyphicon-plus"></span> Add another element',
+        'element_del' => '<span class="glyphicon glyphicon-remove"></span> Remove',
+        'element_sort' => true,
     ),
 
 

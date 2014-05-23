@@ -11,47 +11,55 @@ class Collection extends Component {
     {
         if (class_basename(get_class($this->content)) !== 'Formizz') {
             throw new RuntimeException('Collection is not a Formizz object');
-        };
-
-        if ($min = $this->getMinElements())
-        {
-            for ($i = 0; $i < $min; $i++)
-            {
-                $embedForm = clone $this->content->embed($this->getName(), $i);
-                $this->add($embedForm);
-            }
         }
-        else
+
+        if ($delete = $this->elementDelete())
         {
-            $embedForm = clone $this->content->embed($this->getName());
+            $this->content->add('<a href="#" class="collection-delete-row">' . $delete . '</a>');
+        }
+
+        $min = $this->elementMin();
+        for ($i = 0; $i < $min; $i++)
+        {
+            $embedForm = clone $this->content->embed($this->getName(), $i);
             $this->add($embedForm);
         }
 
-        if ($this->allowAdd())
+
+        if ($this->elementAdd())
         {
             $prototype = clone $this->content->embed($this->getName(), '__DELTA__');
             $this->setPrototype((string) $prototype);
         }
 
-        //var_dump($this->config);
-
         return null;
     }
 
-    public function allowAdd()
+    public function elementAdd()
     {
-        return array_get($this->config, 'allow_add', false);
+        return array_get($this->config, 'element_add', false);
     }
 
-    public function allowDelete()
+    public function elementDelete()
     {
-        return array_get($this->config, 'allow_delete', false);
+        return array_get($this->config, 'element_del', false);
     }
 
-    public function allowSorting()
+    public function elementSorting()
     {
-        return array_get($this->config, 'allow_sorting', false);
+        return array_get($this->config, 'element_sort', false);
     }
+
+    public function elementMax()
+    {
+        return (int) array_get($this->config, 'element_max', 0);
+    }
+
+    public function elementMin()
+    {
+        return (int) array_get($this->config, 'element_min', 1);
+    }
+
 
     public function setPrototype($prototype)
     {
@@ -65,26 +73,15 @@ class Collection extends Component {
         $collection = new stdClass;
 
         $collection->prototype = HTML::attributes(array('data-prototype' => $this->prototype));
-        $collection->add = $this->allowAdd();
-        $collection->delete = $this->allowDelete();
-        $collection->sorting = $this->allowSorting();
-        $collection->min = $this->getMinElements();
-        $collection->max = $this->getMaxElements();
-
+        $collection->add = $this->elementAdd();
+        $collection->delete = $this->elementDelete();
+        $collection->sorting = $this->elementSorting();
+        $collection->min = $this->elementMin();
+        $collection->max = $this->elementMax();
 
         return $collection;
     }
 
-
-    public function getMaxElements()
-    {
-        return (int) array_get($this->config, 'max_element', 0);
-    }
-
-    public function getMinElements()
-    {
-        return (int) array_get($this->config, 'min_element', 1);
-    }
 
     protected function getDatas()
     {
