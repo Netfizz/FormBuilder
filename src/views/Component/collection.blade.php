@@ -37,7 +37,8 @@
 
                 @if ($collection->max)
                 // Check max element
-                if (delta >= {{ $collection->max }}) {
+                nb_element = jQuery('#{{ $id }} .collection-component li').length;
+                if (nb_element >= {{ $collection->max }}) {
                     return false;
                 }
                 @endif
@@ -56,8 +57,6 @@
 
             jQuery(document).on('click', '#{{ $id }} .collection-delete-row' , function() {
                 jQuery( this ).parents('li').remove();
-
-                console.log(jQuery( this ));
                 return false;
             });
 
