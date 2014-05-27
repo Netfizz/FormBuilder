@@ -87,16 +87,18 @@ class Field extends Component {
 
     public function makeMessage()
     {
-
+        //var_dump($this->getName(), $this->transformKey($this->getName()), $this->messages['errors']);
         $states = array_get($this->config, 'messages', array());
 
         foreach($states as $state => $params)
         {
-            if ($this->messages[$state]->has($this->name)) {
+
+            $key = $this->transformKey($this->getName());
+            if ($this->messages[$state]->has($key)) {
 
                 $this->addClass($params['wrapperClass']);
 
-                $message = $this->messages[$state]->first($this->name);
+                $message = $this->messages[$state]->first($key);
 
                 return is_array($message) ? implode(PHP_EOL, $message) : $message;
             }

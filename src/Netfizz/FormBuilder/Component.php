@@ -419,8 +419,8 @@ class Component implements Renderable {
     {
         if ( $embed = $this->embed() )
         {
-            //return sprintf($embed.'[%s][%s]', $this->delta, $this->name);
-            return sprintf($embed.'[%s][%s]', $this->delta, $this->name);
+            $embedName = sprintf($embed.'[%s][%s]', $this->delta, $this->name);
+            return $embedName;
         }
 
         return $this->name;
@@ -460,19 +460,24 @@ class Component implements Renderable {
         $prefix = $this->builder->getFormId();
 
         if ($embed = $this->embed()) {
-            $prefix .= $this->transformKey($embed) . $this->delta;
+            $prefix .= $this->studly_case($embed) . $this->delta;
         }
 
         return $prefix;
     }
 
 
-    protected function transformKey($key)
+    protected function studly_case($key)
     {
         $key = preg_replace("/[^A-Za-z0-9]/", '_', $key);
         $key = Str::slug($key, '_');
 
         return studly_case($key);
+    }
+
+    protected function transformKey($key)
+    {
+        return str_replace(array('.', '[]', '[', ']'), array('_', '', '.', ''), $key);
     }
 
 
