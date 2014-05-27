@@ -27,7 +27,7 @@ class Formizz implements Renderable {
 
     public function __clone()
     {
-        foreach ($this->elements as $delta => $element)
+        foreach ($this->getElements() as $delta => $element)
         {
             if (is_object($element) || (is_array($element))) {
                 $this->elements[$delta] =  clone $element;
@@ -46,6 +46,35 @@ class Formizz implements Renderable {
         $this->builder->setFramework($framework);
         return $this;
     }
+
+
+    public function resetMessages()
+    {
+        $this->recursiveAttribute($this->getElements(), null, array(), 'messages');
+        return $this;
+    }
+
+
+    public function recursiveAttribute($elements = array(), $name = null, $value = null, $part = 'component')
+    {
+        if (empty($elements))
+        {
+            $elements = $this->getElements();
+        }
+
+        foreach ($elements as $element)
+        {
+            if (is_subclass_of($element, 'Netfizz\FormBuilder\Component'))
+            {
+                $element->attribute($name, $value, $part);
+                if ($childs = $element->getElements())
+                {
+                    $this->recursiveAttribute($childs, $name, $value, $part);
+                }
+            }
+        }
+    }
+
 
     public function embed($name = null, $delta = 0)
     {
@@ -72,7 +101,7 @@ class Formizz implements Renderable {
             $embed = $this->embed;
         }
 
-        foreach($this->elements as $element) {
+        foreach($this->getElements() as $element) {
             if ( method_exists($element, 'embed') )
             {
                 $element->embed($embed, $this->delta);
@@ -148,9 +177,14 @@ class Formizz implements Renderable {
         return $this->form;
     }
 
+    public function getElements()
+    {
+        return $this->elements;
+    }
+
     protected function addElements()
     {
-        foreach($this->elements as $element)
+        foreach($this->getElements() as $element)
         {
             $this->form->add($element);
         }

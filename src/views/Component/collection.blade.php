@@ -52,6 +52,11 @@
                 var newLi = jQuery('<li></li>').html(newWidget);
                 newLi.appendTo(collection);
 
+                // Scroll to bottom
+                $('html, body').animate({
+                    scrollTop: (jQuery(this).offset().top)
+                }, 500);
+
                 return false;
             });
 

@@ -106,23 +106,30 @@ class Component implements Renderable {
 
 
 
-    public function attribute($name = null, $value = null, $element = 'component')
+    public function attribute($name = null, $value = null, $part = 'component')
     {
         if ($name === null && $value === null)
         {
-            return array_get($this->config, $element, array());
+            return array_get($this->config, $part, array());
         }
 
         if ($name && $value === null)
         {
-            return array_get($this->config[$element], $name, array());
+            return array_get($this->config[$part], $name, array());
+        }
+
+        if ($name === null && $value !== null)
+        {
+            array_set($this->config, $part, $value);
+            //$this->config[$part] = $value;
         }
 
         if ($name && $value)
         {
-            array_set($this->config[$element], $name, $value);
-            return $this;
+            array_set($this->config[$part], $name, $value);
         }
+
+        return $this;
     }
 
 
@@ -157,11 +164,6 @@ class Component implements Renderable {
 
         $this->embed = $name;
         $this->delta = $delta;
-        var_dump($this->type);
-        if ($this->type == 'container') {
-            var_dump($this->type);
-            $this->attribute('id', $this->getId(), 'wrapper');
-        }
 
         return $this;
     }
@@ -210,21 +212,6 @@ class Component implements Renderable {
 
     public function makeMessage()
     {
-
-        $states = array_get($this->config, 'messages', array());
-
-        foreach($states as $state => $params)
-        {
-            if ($this->messages[$state]->has($this->name)) {
-
-                $this->addClass($params['wrapperClass']);
-
-                $message = $this->messages[$state]->first($this->name);
-
-                return is_array($message) ? implode(PHP_EOL, $message) : $message;
-            }
-        }
-
         return null;
     }
 

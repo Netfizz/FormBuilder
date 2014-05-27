@@ -94,6 +94,7 @@ class FormBuilder extends DefaultFormBuilder {
     }
 
 
+
     /**
      * Get the model value that should be assigned to the field.
      *
@@ -105,7 +106,8 @@ class FormBuilder extends DefaultFormBuilder {
 
         if (is_object($this->model))
         {
-            $value = object_get($this->model, $this->transformKey($name));
+
+            $value = $this->object_get($this->model, $this->transformKey($name));
 
             if ($value instanceof Collection) {
                 return $value->modelKeys();
@@ -117,5 +119,26 @@ class FormBuilder extends DefaultFormBuilder {
         {
             return array_get($this->model, $this->transformKey($name));
         }
+    }
+
+
+    protected function object_get($object, $key, $default = null)
+    {
+        if (is_null($key) || trim($key) == '') return $object;
+
+        foreach (explode('.', $key) as $segment)
+        {
+
+            if ( ! is_object($object) || ! isset($object[$segment]))
+            {
+                return value($default);
+            }
+
+            $object = $object[$segment];
+
+        }
+
+        return $object;
+
     }
 }

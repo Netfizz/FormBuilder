@@ -11,7 +11,8 @@ class Field extends Component {
     {
         $type = $this->type;
         $name = $this->getName();
-        $value = $this->content;
+        //$value = $this->content;
+        $value = $this->builder->getValueAttribute($this->getName(), $this->content);
         $options = $this->attributes();
 
         if ( ! array_key_exists('id', $options))
@@ -81,6 +82,27 @@ class Field extends Component {
         }
 
         return HTML::decode(FormBuilder::label($this->getId(), $label, $options));
+    }
+
+
+    public function makeMessage()
+    {
+
+        $states = array_get($this->config, 'messages', array());
+
+        foreach($states as $state => $params)
+        {
+            if ($this->messages[$state]->has($this->name)) {
+
+                $this->addClass($params['wrapperClass']);
+
+                $message = $this->messages[$state]->first($this->name);
+
+                return is_array($message) ? implode(PHP_EOL, $message) : $message;
+            }
+        }
+
+        return null;
     }
 
 

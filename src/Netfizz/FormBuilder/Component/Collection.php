@@ -1,7 +1,7 @@
 <?php namespace Netfizz\FormBuilder\Component;
 
 use Netfizz\FormBuilder\Component;
-use HTML, stdClass, RuntimeException;
+use HTML, Input, stdClass, RuntimeException;
 
 class Collection extends Component {
 
@@ -15,8 +15,9 @@ class Collection extends Component {
 
         if ($delete = $this->elementDelete())
         {
-            $this->content->add('<a href="#" class="collection-delete-row">' . $delete . '</a>');
+            $this->content->add('<div class="text-right"><a href="#" class="collection-delete-row">' . $delete . '</a></div>');
         }
+
 
         $min = $this->elementMin();
         for ($i = 0; $i < $min; $i++)
@@ -28,11 +29,31 @@ class Collection extends Component {
 
         if ($this->elementAdd())
         {
-            $prototype = clone $this->content->embed($this->getName(), '__DELTA__');
+            $prototype = clone $this->content->embed($this->getName(), '__DELTA__')->resetMessages();
             $this->setPrototype((string) $prototype);
         }
 
         return null;
+    }
+
+    protected function getCollectionItem()
+    {
+        $model = $this->getModel();
+        $method = $this->getName();
+
+        if ( ! method_exists($model, $method)) {
+            return false;
+        }
+
+        // if this method return an eloquent Relationships class
+        $relationObj = $model->$method();
+        if ( ! is_subclass_of($relationObj, 'Illuminate\Database\Eloquent\Relations\Relation')) {
+            return false;
+        }
+
+        $relatedModel = $relationObj->getRelated();
+
+        var_dump($relationObj);
     }
 
     public function elementAdd()
@@ -57,7 +78,17 @@ class Collection extends Component {
 
     public function elementMin()
     {
-        return (int) array_get($this->config, 'element_min', 1);
+        $element_min = (int) array_get($this->config, 'element_min', 1);
+
+        if ($this->getModel()) {
+            $element_min = 2;
+        }
+
+        if ($data = Input::old($this->name)) {
+            $element_min = count($data);
+        }
+
+        return $element_min;
     }
 
 
