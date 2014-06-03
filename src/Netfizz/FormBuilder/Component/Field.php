@@ -35,13 +35,17 @@ class Field extends Component {
         switch ($type) {
             case 'text' :
             case 'password' :
-            case 'hidden' :
             case 'email' :
             case 'url' :
             case 'file' :
             case 'reset' :
             case 'image' :
                 $content = FormBuilder::input($type, $name, $value, $options);
+                break;
+
+            case 'hidden' :
+                $content = FormBuilder::input($type, $name, $value, $options);
+                $this->removeLabel();
                 break;
 
             case 'textarea' :
