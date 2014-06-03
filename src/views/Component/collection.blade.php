@@ -11,13 +11,13 @@
     {{ $message }}
 
     <!-- subforms collection -->
-    <ul class="collection-component"{{ $collection->prototype }}>
+    <ol class="collection-component"{{ $collection->prototype }}>
         @foreach ($elements as $element)
             <li>
                 {{ $element }}
             </li>
         @endforeach
-    </ul>
+    </ol>
 
     @if ($collection->add)
     <a href="#" class="collection-add-row">{{ $collection->add }}</a>

@@ -98,6 +98,11 @@ return array(
     ),
 
 
+    'hidden' => array(
+        'template' => 'form-builder::component.component-only',
+    ),
+
+
     'textarea' => array(
         'component' => array(
             'class' => 'form-control test2',

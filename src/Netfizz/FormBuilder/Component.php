@@ -275,6 +275,11 @@ class Component implements Renderable {
         return new Field('text', $name, $content, $params);
     }
 
+    public static function hidden($name, $content = null, $params = array())
+    {
+        return new Field('hidden', $name, $content, $params);
+    }
+
     public static function file($name, $content = null, $params = array())
     {
         return new Field('file', $name, $content, $params);
@@ -417,13 +422,18 @@ class Component implements Renderable {
 
     public function getName()
     {
+        return $this->getEmbedName($this->name);
+    }
+
+    public function getEmbedName($name)
+    {
         if ( $embed = $this->embed() )
         {
             $embedName = sprintf($embed.'[%s][%s]', $this->delta, $this->name);
             return $embedName;
         }
 
-        return $this->name;
+        return $name;
     }
 
     public function setType($type)
