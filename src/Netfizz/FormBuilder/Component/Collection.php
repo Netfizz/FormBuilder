@@ -13,16 +13,24 @@ class Collection extends Component {
             throw new RuntimeException('Collection is not a Formizz object');
         }
 
+
+
         if ($delete = $this->elementDelete())
         {
             $this->content->add('<div class="text-right"><a href="#" class="collection-delete-row">' . $delete . '</a></div>');
         }
 
 
+
+        //$this->content->add(Component::text('id'));
+        $this->autoAddCollectionKeyField();
+
         $min = $this->elementMin();
         for ($i = 0; $i < $min; $i++)
         {
             $embedForm = clone $this->content->embed($this->getName(), $i);
+            //var_dump($this->getEmbedName('id'));
+            //$embedForm->add(Component::text($this->getEmbedName('id')));
             $this->add($embedForm);
         }
 
@@ -36,52 +44,56 @@ class Collection extends Component {
         return null;
     }
 
-    protected function getCollectionItem()
+
+    protected function autoAddCollectionKeyField()
     {
-        $model = $this->getModel();
-        $method = $this->getName();
-
-        if ( ! method_exists($model, $method)) {
+        if (! $relationObj = $this->isRelationshipProperty())
+        {
             return false;
         }
 
-        // if this method return an eloquent Relationships class
-        $relationObj = $model->$method();
-        if ( ! is_subclass_of($relationObj, 'Illuminate\Database\Eloquent\Relations\Relation')) {
-            return false;
+        $keyName = $relationObj->getRelated()->getKeyName();
+        foreach($this->content->getElements() as $element) {
+            if (is_subclass_of($element, 'Netfizz\FormBuilder\Component')
+                && $element->getName() == $keyName) {
+                return false;
+            }
         }
 
-        $relatedModel = $relationObj->getRelated();
-
-        var_dump($relationObj);
+        $this->content->add(Component::text($keyName));
     }
+
 
     public function elementAdd()
     {
         return array_get($this->config, 'element_add', false);
     }
 
+
     public function elementDelete()
     {
         return array_get($this->config, 'element_del', false);
     }
+
 
     public function elementSorting()
     {
         return array_get($this->config, 'element_sort', false);
     }
 
+
     public function elementMax()
     {
         return (int) array_get($this->config, 'element_max', 0);
     }
 
+
     public function elementMin()
     {
         $element_min = (int) array_get($this->config, 'element_min', 1);
 
-        if ($this->getModel()) {
-            $element_min = 2;
+        if ($items = $this->getItems()) {
+            $element_min = count($items);
         }
 
         if ($data = Input::old($this->name)) {
@@ -92,12 +104,43 @@ class Collection extends Component {
     }
 
 
+    public function getItems()
+    {
+        if (! $relationObj = $this->isRelationshipProperty())
+        {
+            return false;
+        }
+
+
+        return $relationObj->getResults();
+    }
+
+
+    protected function isRelationshipProperty()
+    {
+        $attribute = $this->getName();
+        $model = $this->getModel();
+        if ( ! method_exists($model, $attribute)) {
+            return false;
+        }
+
+        // if this method return an eloquent Relationships class
+        $relationObj = $model->$attribute();
+        if (is_subclass_of($relationObj, 'Illuminate\Database\Eloquent\Relations\Relation')) {
+            return $relationObj;
+        }
+
+        return false;
+    }
+
+
     public function setPrototype($prototype)
     {
         $this->prototype = $prototype;
 
         return $this;
     }
+
 
     protected function makeCollection()
     {
