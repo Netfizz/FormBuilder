@@ -12,6 +12,8 @@ class FormBuilder extends DefaultFormBuilder {
 
     protected $config;
 
+    static $relationsCollection = array();
+
     /**
      * @param HtmlBuilder $html
      * @param UrlGenerator $url
@@ -72,8 +74,11 @@ class FormBuilder extends DefaultFormBuilder {
      */
     public function getModel()
     {
+        //var_dump('getModel()', class_basename($this->model));
         return $this->model;
     }
+
+    //public function getRelation
 
 
     /**
@@ -103,42 +108,71 @@ class FormBuilder extends DefaultFormBuilder {
      */
     protected function getModelValueAttribute($name)
     {
+        $name = $this->transformKey($name);
 
         if (is_object($this->model))
         {
+            $value = object_get($this->model, $name);
 
-            $value = $this->object_get($this->model, $this->transformKey($name));
-
-            if ($value instanceof Collection) {
-                return $value->modelKeys();
+            if (is_null($value))
+            {
+                $value = $this->getRelationModelValueAttribute($name);
             }
 
             return $value;
         }
         elseif (is_array($this->model))
         {
-            return array_get($this->model, $this->transformKey($name));
+            return array_get($this->model, $name);
         }
     }
 
-
-    protected function object_get($object, $key, $default = null)
+    public function getRelationModelValueAttribute($name)
     {
-        if (is_null($key) || trim($key) == '') return $object;
+        $params = explode('.', $name);
+        $property = array_shift($params);
 
-        foreach (explode('.', $key) as $segment)
+        if ( ! $this->isRelationshipProperty($property))
         {
+            return null;
+        }
 
-            if ( ! is_object($object) || ! isset($object[$segment]))
+        $collection = self::getRelationCollection($property, $this->model);
+
+        if (empty($params))
+        {
+            return $collection->modelKeys();
+        }
+
+        return array_get($collection->toArray(), implode('.', $params), null);
+    }
+
+
+    public static function getRelationCollection($property, $model)
+    {
+        if (! array_key_exists($property, self::$relationsCollection)) {
+            $collection = array();
+            if ($model->isRelationshipProperty($property))
             {
-                return value($default);
+                $collection = $model->$property;
             }
 
-            $object = $object[$segment];
-
+            self::$relationsCollection[$property] = $collection;
         }
 
-        return $object;
-
+        return self::$relationsCollection[$property];
     }
+
+
+    public function isRelationshipProperty($property, $model = null)
+    {
+        if ($model === null)
+        {
+            $model = $this->model;
+        }
+
+        // TODO : add check if trait exist  $model->trait_exists('')
+        return $model::isRelationshipProperty($property);
+    }
+
 }

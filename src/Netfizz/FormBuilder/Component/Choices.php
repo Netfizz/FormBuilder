@@ -1,14 +1,17 @@
 <?php namespace Netfizz\FormBuilder\Component;
 
 use Illuminate\Support\Facades\Form as FormBuilder;
+use Illuminate\Database\Eloquent\Collection;
 use Netfizz\FormBuilder\Component;
-use HTML, App;
+use HTML, App, ArrayableInterface;
 
 class Choices extends Field {
 
     protected $choices;
 
     protected $hasMany;     // has many values
+
+    static $fetch = array();
 
 
     public function __construct($type, $name, $choices = array(), $selected = null, $options = array())
@@ -29,8 +32,22 @@ class Choices extends Field {
         $list = $this->getChoices();
         $type = $this->getType();
         $value = $this->builder->getValueAttribute($this->getName(), $this->content);
+
+        if ($value instanceof Collection) {
+            $value = $value->modelKeys();
+
+            //$this->getModel()->blocks;
+            //var_dump($this->getModel()->blocks);
+            //var_dump('object_get', $this->getModel(), object_get($this->getModel(), 'blocks'));
+        }
+
         $options = $this->attributes();
         $labelAttributes = $this->attributes('label');
+
+        //var_dump('$this->content', $this->content);
+        //var_dump('$value', $value);
+
+
 
         switch ($type) {
             case 'select' :
@@ -159,7 +176,7 @@ class Choices extends Field {
         // check if is a relation field
         if ($relationObj = $this->isRelationshipProperty($this->name))
         {
-            return $this->getRelatedChoices($relationObj);
+            return self::getRelatedChoices($relationObj);
         }
 
         return array();
@@ -169,27 +186,23 @@ class Choices extends Field {
 
     protected function isRelationshipProperty($name)
     {
-
-        // check if is a foreign key OR Multiple key []
-        $method = preg_replace('/(?:_id|\[\])+$/', '', $name);
         $model = $this->getModel();
 
-        if ( ! method_exists($model, $method)) {
+
+        // TODO : add check if trait exist  $model->trait_exists('')
+        if ($model === null) {
             return false;
         }
 
-        // if this method return an eloquent Relationships class
-        $relationObj = $model->$method();
-        if (is_subclass_of($relationObj, 'Illuminate\Database\Eloquent\Relations\Relation')) {
-            return $relationObj;
-        }
+        // check if is a foreign key OR Multiple key []
+        $attribute = preg_replace('/(?:_id|\[\])+$/', '', $name);
 
-        return false;
+        return $model::isRelationshipProperty($attribute);
     }
 
     protected function getRelatedChoices($relationObj)
     {
-        $relatedModel = $relationObj->getRelated();
+
         $relationType = class_basename(get_class($relationObj));
 
         if ($relationType === 'BelongsTo' && $relationObj->getForeignKey() != $this->name)
@@ -197,21 +210,21 @@ class Choices extends Field {
             $this->setName($relationObj->getForeignKey());
         }
 
-        /*
-        $relationType = class_basename(get_class($relationObj));
+        $relatedModel = $relationObj->getRelated();
+        $collection = self::fetchCollection($relatedModel);
 
-        $multipleRelationTypes = array(
-            'BelongsToMany',
-            'MorphMany'
-        );
+        //$collection = $relatedModel::all();
+        return $this->collectionToArray($collection);
+    }
 
-        if (in_array($relationType, $multipleRelationTypes)) {
-            //$this->setHasManyValues();
+    public static function fetchCollection($relatedModel)
+    {
+        $key = class_basename(get_class($relatedModel));
+        if (! array_key_exists($key, self::$fetch)) {
+            self::$fetch[$key] = $relatedModel::all();
         }
-        */
 
-        return $this->collectionToArray($relatedModel::all());
-        //var_dump($relatedModel::all());
+        return self::$fetch[$key];
     }
 
 

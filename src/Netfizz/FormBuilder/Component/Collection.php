@@ -7,12 +7,13 @@ class Collection extends Component {
 
     protected $prototype;
 
+    static $ValuesCollection;
+
     protected function makeContent()
     {
         if (class_basename(get_class($this->content)) !== 'Formizz') {
             throw new RuntimeException('Collection is not a Formizz object');
         }
-
 
 
         if ($delete = $this->elementDelete())
@@ -21,16 +22,12 @@ class Collection extends Component {
         }
 
 
-
-        //$this->content->add(Component::text('id'));
-        $this->autoAddCollectionKeyField();
+        $this->autoAddCollectionPrimaryKeyField();
 
         $min = $this->elementMin();
-        for ($i = 0; $i < $min; $i++)
+        for ($i = 0; $i <= $min; $i++)
         {
             $embedForm = clone $this->content->embed($this->getName(), $i);
-            //var_dump($this->getEmbedName('id'));
-            //$embedForm->add(Component::text($this->getEmbedName('id')));
             $this->add($embedForm);
         }
 
@@ -45,7 +42,7 @@ class Collection extends Component {
     }
 
 
-    protected function autoAddCollectionKeyField()
+    protected function autoAddCollectionPrimaryKeyField()
     {
         if (! $relationObj = $this->isRelationshipProperty())
         {
@@ -111,26 +108,23 @@ class Collection extends Component {
             return false;
         }
 
-
-        return $relationObj->getResults();
+        $builder = $this->getBuilder();
+        return $builder::getRelationCollection($this->getName(), $this->getModel());
     }
 
 
     protected function isRelationshipProperty()
     {
-        $attribute = $this->getName();
         $model = $this->getModel();
-        if ( ! method_exists($model, $attribute)) {
+
+        // TODO : add check if trait exist  $model->trait_exists('')
+        if ($model === null) {
             return false;
         }
 
-        // if this method return an eloquent Relationships class
-        $relationObj = $model->$attribute();
-        if (is_subclass_of($relationObj, 'Illuminate\Database\Eloquent\Relations\Relation')) {
-            return $relationObj;
-        }
+        $attribute = $this->getName();
 
-        return false;
+        return $model::isRelationshipProperty($attribute);
     }
 
 

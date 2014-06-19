@@ -13,7 +13,10 @@ class Field extends Component {
         $name = $this->getName();
         //$value = $this->content;
         $value = $this->builder->getValueAttribute($this->getName(), $this->content);
+        //$value = null;
         $options = $this->attributes();
+
+        //var_dump('$value', $value);
 
         if ( ! array_key_exists('id', $options))
         {
