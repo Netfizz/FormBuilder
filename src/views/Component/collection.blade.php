@@ -11,7 +11,7 @@
     {{ $message }}
 
     <!-- subforms collection -->
-    <ol class="collection-component"{{ $collection->prototype }}>
+    <ol{{ $collection->attributes }}>
         @foreach ($elements as $element)
             {{ $element }}
         @endforeach

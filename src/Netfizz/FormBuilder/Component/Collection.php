@@ -140,14 +140,30 @@ class Collection extends Component {
     {
         $collection = new stdClass;
 
-        $collection->prototype = HTML::attributes(array('data-prototype' => $this->prototype));
+        $collection->attributes = $this->getCollectionAttributes();
         $collection->add = $this->elementAdd();
         $collection->delete = $this->elementDelete();
         $collection->sorting = $this->elementSorting();
         $collection->min = $this->elementMin();
         $collection->max = $this->elementMax();
 
+
         return $collection;
+    }
+
+    protected function getCollectionAttributes()
+    {
+        $class = array('collection-component');
+        if ($this->isSortable()) {
+            $class[] = 'collection-sortable';
+        }
+
+        $attributes = array(
+            'class' => implode(' ', $class),
+            'data-prototype' => $this->prototype
+        );
+
+        return HTML::attributes($attributes);
     }
 
 
