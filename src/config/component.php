@@ -80,6 +80,11 @@ return array(
     ),
 
 
+    'embedContainer' => array(
+        'template' => 'form-builder::component.collection-element',
+    ),
+
+
     'help' => array(
         'template' => 'form-builder::component.paragraph',
         'wrapper' => array(
