@@ -250,6 +250,11 @@ class Component implements Renderable {
         return new self('container', $name, $content, $params);
     }
 
+    public static function embedContainer($name = null, $content = null, $params = array())
+    {
+        return new self('embedContainer', $name, $content, $params);
+    }
+
     public static function form($name = null, $content = null, $params = array())
     {
         return new Form($name, $content, $params);

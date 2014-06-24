@@ -13,9 +13,7 @@
     <!-- subforms collection -->
     <ol class="collection-component"{{ $collection->prototype }}>
         @foreach ($elements as $element)
-            <li>
-                {{ $element }}
-            </li>
+            {{ $element }}
         @endforeach
     </ol>
 
@@ -67,6 +65,10 @@
 
 
 
+            @if ($sortable)
+
+            jQuery('#{{ $id }} .collection-component').sortable();
+            @endif
         })
     </script>
 

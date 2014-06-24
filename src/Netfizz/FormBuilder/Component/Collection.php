@@ -57,7 +57,7 @@ class Collection extends Component {
             }
         }
 
-        $this->content->add(Component::text($keyName));
+        $this->content->add(Component::hidden($keyName));
     }
 
 
@@ -103,7 +103,7 @@ class Collection extends Component {
 
     public function getItems()
     {
-        if (! $relationObj = $this->isRelationshipProperty())
+        if (! $this->isRelationshipProperty())
         {
             return false;
         }
@@ -151,11 +151,27 @@ class Collection extends Component {
     }
 
 
+    protected function isSortable()
+    {
+        if ($relationObj = $this->isRelationshipProperty())
+        {
+            $related = $relationObj->getRelated();
+
+            foreach (class_uses($related) as $trait)
+            {
+                if (class_basename($trait) === 'ModelSortableTrait') return true;
+            }
+        }
+
+        return false;
+    }
+
     protected function getDatas()
     {
         return array_merge(parent::getDatas(), array(
             'id' => $this->getId(),
-            'collection' => $this->makeCollection()
+            'collection' => $this->makeCollection(),
+            'sortable' => $this->isSortable()
         ));
     }
 } 

@@ -171,7 +171,7 @@ class Formizz implements Renderable {
     {
         // Todo :
         // instanciate form
-        $this->form = Component::create();
+        $this->form = Component::embedContainer();
         $this->addElements();
 
         return $this->form;
