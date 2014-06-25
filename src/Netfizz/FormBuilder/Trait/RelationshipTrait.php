@@ -140,8 +140,6 @@ trait RelationshipTrait {
      */
     public function cascadeDelete()
     {
-        if( $this->trashed());
-
         // Do not perform cascade delete if the instance is only soft deleted
         if (method_exists($this, 'trashed') && $this->trashed())
         {
