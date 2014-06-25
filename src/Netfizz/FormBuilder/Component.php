@@ -67,9 +67,6 @@ class Component implements Renderable {
                 $this->elements[$delta] =  clone $element;
             }
         }
-
-        $this->attribute('id', $this->getId(), 'wrapper');
-
     }
 
     protected function initConfig()

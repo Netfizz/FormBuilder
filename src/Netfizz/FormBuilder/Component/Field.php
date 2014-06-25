@@ -13,10 +13,7 @@ class Field extends Component {
         $name = $this->getName();
         //$value = $this->content;
         $value = $this->builder->getValueAttribute($this->getName(), $this->content);
-        //$value = null;
         $options = $this->attributes();
-
-        //var_dump('$value', $value);
 
         if ( ! array_key_exists('id', $options))
         {
@@ -94,7 +91,6 @@ class Field extends Component {
 
     public function makeMessage()
     {
-        //var_dump($this->getName(), $this->transformKey($this->getName()), $this->messages['errors']);
         $states = array_get($this->config, 'messages', array());
 
         foreach($states as $state => $params)

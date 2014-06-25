@@ -74,11 +74,8 @@ class FormBuilder extends DefaultFormBuilder {
      */
     public function getModel()
     {
-        //var_dump('getModel()', class_basename($this->model));
         return $this->model;
     }
-
-    //public function getRelation
 
 
     /**

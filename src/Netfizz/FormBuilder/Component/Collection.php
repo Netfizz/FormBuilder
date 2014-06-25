@@ -7,31 +7,31 @@ class Collection extends Component {
 
     protected $prototype;
 
-    static $ValuesCollection;
-
     protected function makeContent()
     {
         if (class_basename(get_class($this->content)) !== 'Formizz') {
             throw new RuntimeException('Collection is not a Formizz object');
         }
 
-
+        // Add delete button for element
         if ($delete = $this->elementDelete())
         {
             $this->content->add('<div class="text-right"><a href="#" class="collection-delete-row">' . $delete . '</a></div>');
         }
 
-
+        // Add an hidden input with primary key
         $this->autoAddCollectionPrimaryKeyField();
 
+
+        // Load elements in bdd or in previous post
         $min = $this->elementMin();
-        for ($i = 0; $i <= $min; $i++)
+        for ($i = 0; $i < $min; $i++)
         {
             $embedForm = clone $this->content->embed($this->getName(), $i);
             $this->add($embedForm);
         }
 
-
+        // Add prototype for adding another element with js
         if ($this->elementAdd())
         {
             $prototype = clone $this->content->embed($this->getName(), '__DELTA__')->resetMessages();
@@ -58,6 +58,7 @@ class Collection extends Component {
         }
 
         $this->content->add(Component::hidden($keyName));
+
     }
 
 

@@ -47,8 +47,7 @@
                 delta++;
 
                 // Add new row
-                var newLi = jQuery('<li></li>').html(newWidget);
-                newLi.appendTo(collection);
+                jQuery(collection).append(newWidget);
 
                 // Scroll to bottom
                 $('html, body').animate({
@@ -63,11 +62,11 @@
                 return false;
             });
 
-
-
             @if ($sortable)
+            jQuery('#{{ $id }} .collection-component').sortable({
+                nested: false
+            });
 
-            jQuery('#{{ $id }} .collection-component').sortable();
             @endif
         })
     </script>

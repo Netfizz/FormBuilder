@@ -22,11 +22,14 @@ class Formizz implements Renderable {
     public function __construct()
     {
         $this->builder = App::make('formizz.builder');
+        $this->setForm(Component::form());
     }
 
 
     public function __clone()
     {
+        $this->form = clone $this->form;
+
         foreach ($this->getElements() as $delta => $element)
         {
             if (is_object($element) || (is_array($element))) {
@@ -39,6 +42,11 @@ class Formizz implements Renderable {
 
     public function getId() {
         return null;
+    }
+
+    public function getDataId()
+    {
+
     }
 
     public function setFramework($framework)
@@ -87,8 +95,9 @@ class Formizz implements Renderable {
         $this->embed = $name;
         $this->delta = $delta;
 
+        // Overide form container by an embed one
+        $this->form = Component::embedContainer();
         $this->embedElements();
-
 
         return $this;
     }
@@ -153,8 +162,6 @@ class Formizz implements Renderable {
 
     public function makeForm()
     {
-        // instanciate form
-        $this->form = Component::form();
         $this->addElements();
         $this->addButton();
 
@@ -163,17 +170,24 @@ class Formizz implements Renderable {
             $this->form->bind($this->model);
         }
 
-        return $this->form;
+        return $this->getForm();
     }
 
 
     public function makeEmbedForm()
     {
-        // Todo :
-        // instanciate form
-        $this->form = Component::embedContainer();
         $this->addElements();
 
+        return $this->getForm();
+    }
+
+    public function setForm($form)
+    {
+        $this->form = $form;
+    }
+
+    public function getForm()
+    {
         return $this->form;
     }
 
